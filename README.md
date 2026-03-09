@@ -1,0 +1,1 @@
+Day 1: BTC ingestion + validation + raw/processed outputs + date range checks
