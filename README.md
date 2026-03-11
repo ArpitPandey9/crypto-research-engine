@@ -7,8 +7,6 @@ A research-grade crypto data + backtesting pipeline (BTC/ETH initially). Built w
 - [x] Day 2: BTC+ETH ingestion + validation + long/wide datasets + returns + cumulative returns
 
 ## Quickstart
-Create and activate your virtual environment, install deps, then run:
-
 ```bash
 python -m src.data.make_dataset
 python -m src.features.returns
