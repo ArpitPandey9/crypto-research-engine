@@ -1,124 +1,72 @@
-from __future__ import annotations
-
 from pathlib import Path
 import pandas as pd
 
-from src.data.fetch_prices import fetch_btc_prices
+from src.data.fetch_prices import fetch_daily_prices
 from src.data.validate import validate_prices
 
+# Project root discovery (portable across machines)
+ROOT = Path(__file__).resolve().parents[2]
 
-# ==========
-# Paths
-# ==========
-# PROJECT ROOT = .../crypto-research-engine/
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+RAW = ROOT / "data" / "raw"
+PROCESSED = ROOT / "data" / "processed"
 
 
-# ==========
-# Helpers
-# ==========
-def save_csv(df: pd.DataFrame, path: Path) -> None:
-    """Save DataFrame to CSV, creating folders if needed."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
-
-
-def log_duplicates(df: pd.DataFrame, max_rows: int = 10) -> None:
+def main() -> None:
     """
-    Print how many duplicate (coin_id, date) rows exist and show examples.
+    Build and persist price datasets for BTC and ETH.
 
-    Duplicate means: same coin_id AND same date appears more than once.
+    Outputs
+    -------
+    1) Raw long CSV:
+       date, price, coin_id
+
+    2) Processed long CSV:
+       typed datetime, sorted (coin_id, date)
+
+    3) Processed wide CSV:
+       index=date, columns=[bitcoin, ethereum], values=price
+
+    Industry rationale
+    ------------------
+    - Persisting intermediate artifacts improves reproducibility.
+    - Keeping both long and wide forms makes downstream research easier.
     """
-    dup_count = df.duplicated(subset=["coin_id", "date"]).sum()
-    print(f"Duplicate (coin_id, date) rows BEFORE dedup: {dup_count}")
+    # Fetch each asset independently (clean separation)
+    btc = fetch_daily_prices("bitcoin", days=365)
+    eth = fetch_daily_prices("ethereum", days=365)
 
-    if dup_count > 0:
-        # keep=False shows all rows that belong to duplicated groups
-        dup_rows = df[df.duplicated(subset=["coin_id", "date"], keep=False)]
-        print(f"Showing up to {max_rows} duplicate rows (examples):")
-        print(dup_rows.head(max_rows))
+    # Combine into a single "long" dataset
+    df = pd.concat([btc, eth], ignore_index=True)
 
-
-def deduplicate_prices(df: pd.DataFrame, keep: str = "last") -> pd.DataFrame:
-    """
-    Remove duplicates by (coin_id, date).
-
-    keep="last" means:
-    - if a date appears multiple times, keep the last row for that date.
-    """
-    return df.drop_duplicates(subset=["coin_id", "date"], keep=keep)
-
-
-def make_processed(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Create the 'processed' dataset:
-    - date as datetime
-    - sorted by coin_id then date
-    """
-    out = df.copy()
-    out["date"] = pd.to_datetime(out["date"])
-    out = out.sort_values(["coin_id", "date"]).reset_index(drop=True)
-    return out
-
-
-# ==========
-# Main pipeline
-# ==========
-def main(days: int = 365, show_dupes: bool = True) -> None:
-    """
-    End-to-end dataset builder (Day 1):
-    1) Fetch BTC prices
-    2) (Optional) log duplicates
-    3) Deduplicate
-    4) Validate
-    5) Save raw + processed
-    6) Print date range + preview
-    """
-    print("Building BTC dataset...")
-
-    # 1) Fetch (download) data
-    df = fetch_btc_prices(days=days)
-
-    # 2) Log duplicates (optional learning/debug)
-    if show_dupes:
-        log_duplicates(df, max_rows=10)
-
-    # 3) Deduplicate (safe-clean step)
-    df = deduplicate_prices(df, keep="last")
-
-    # Optional: show duplicates after dedup to confirm it's fixed
-    if show_dupes:
-        after = df.duplicated(subset=["coin_id", "date"]).sum()
-        print(f"Duplicate (coin_id, date) rows AFTER dedup: {after}")
-
-    # 4) Validate (quality gate)
+    # Validate dataset to prevent silent errors downstream
     validate_prices(df)
 
-    # 5) Save RAW
-    raw_path = DATA_RAW / "btc_prices_raw.csv"
-    save_csv(df, raw_path)
-    print(f"Saved: {raw_path}")
+    # Ensure output folders exist
+    RAW.mkdir(parents=True, exist_ok=True)
+    PROCESSED.mkdir(parents=True, exist_ok=True)
 
-    # 6) Build processed + save
-    processed = make_processed(df)
-    processed_path = DATA_PROCESSED / "btc_prices_processed.csv"
-    save_csv(processed, processed_path)
-    print(f"Saved: {processed_path}")
+    # Save RAW long dataset (minimal transformations)
+    raw_path = RAW / "prices_btc_eth_long_raw.csv"
+    df.to_csv(raw_path, index=False)
 
-    # 7) Date range check (research sanity check)
-    print("\nDate range:")
-    print("Start:", processed["date"].min())
-    print("End:", processed["date"].max())
-    print("Rows:", len(processed))
+    # Process long dataset: type conversion + sorting
+    df2 = df.copy()
+    df2["date"] = pd.to_datetime(df2["date"])
+    df2 = df2.sort_values(["coin_id", "date"]).reset_index(drop=True)
 
-    # 8) Preview
-    print("\nPreview (processed):")
-    print(processed.head())
-    print("\nDone.")
+    long_path = PROCESSED / "prices_btc_eth_long_processed.csv"
+    df2.to_csv(long_path, index=False)
+
+    # Create wide dataset: one column per asset, indexed by date
+    wide = df2.pivot(index="date", columns="coin_id", values="price").sort_index()
+    wide_path = PROCESSED / "prices_btc_eth_wide_processed.csv"
+    wide.to_csv(wide_path)
+
+    print("Saved:", raw_path)
+    print("Saved:", long_path)
+    print("Saved:", wide_path)
+    print("\nWide preview:\n", wide.head())
 
 
 if __name__ == "__main__":
-    main(days=365, show_dupes=True)
+    main()
