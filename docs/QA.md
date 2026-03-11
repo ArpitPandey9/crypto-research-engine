@@ -149,5 +149,5 @@ Saved under data/raw:
 ### What is the biggest risk if you skip validation?
 You can get misleading backtest results because bad data silently corrupts research.
 
-### Why is “depth” important (Miguel’s feedback)?
+### Why is “depth” important (feedback I received)?
 A few strong, cohesive, well-engineered outputs are more credible than many shallow overlapping repos.
