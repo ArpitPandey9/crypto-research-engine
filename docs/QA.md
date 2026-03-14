@@ -151,3 +151,34 @@ You can get misleading backtest results because bad data silently corrupts resea
 
 ### Why is “depth” important (feedback I received)?
 A few strong, cohesive, well-engineered outputs are more credible than many shallow overlapping repos.
+
+---
+
+## Day 3 — Strategy Layer (MA Crossover)
+
+### 1) What is a moving average?
+A moving average is the average of the last N prices. It smooths the price series and helps identify the trend.
+
+### 2) What is the difference between fast SMA and slow SMA?
+The fast SMA reacts more quickly to recent price changes, while the slow SMA reacts more slowly and represents the broader trend.
+
+### 3) What is a signal?
+A signal is the strategy’s instruction about whether to be in the market or stay out.
+
+### 4) What is a position?
+A position is the actual market exposure taken by the strategy.
+
+### 5) Why do we use shift(1)?
+We use shift(1) so that today’s position is based on yesterday’s signal. This avoids lookahead bias.
+
+### 6) What is lookahead bias?
+Lookahead bias happens when a backtest uses information that would not have been available at the time of the real decision.
+
+### 7) What is strategy return?
+Strategy return is the return earned by the strategy after applying the position rules to the asset return.
+
+### 8) What is the difference between equity_asset and equity_strategy?
+equity_asset shows the growth of $1 in buy-and-hold, while equity_strategy shows the growth of $1 under the strategy rules.
+
+### 9) Why did the strategy outperform buy-and-hold here?
+The strategy outperformed because it stayed out of the market during some weak periods and avoided part of the losses.
