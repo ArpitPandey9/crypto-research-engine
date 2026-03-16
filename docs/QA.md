@@ -182,3 +182,60 @@ equity_asset shows the growth of $1 in buy-and-hold, while equity_strategy shows
 
 ### 9) Why did the strategy outperform buy-and-hold here?
 The strategy outperformed because it stayed out of the market during some weak periods and avoided part of the losses.
+
+---
+
+## Day 4 — Performance Metrics Layer
+
+### 1) What is total return?
+Total return shows the overall profit or loss from the beginning to the end of the backtest.
+
+Formula:
+final equity - 1
+
+### 2) What is annualized return?
+Annualized return shows what the strategy’s return would look like on a yearly basis.
+
+It helps compare strategies fairly across different time periods.
+
+### 3) What is annualized volatility?
+Annualized volatility measures how much the returns move around on a yearly basis.
+
+It is used as a measure of risk or instability.
+
+### 4) What is Sharpe ratio?
+Sharpe ratio measures how much return the strategy generates for each unit of risk.
+
+A higher Sharpe ratio usually means better risk-adjusted performance.
+
+### 5) What is max drawdown?
+Max drawdown is the biggest fall from a previous peak during the backtest.
+
+It shows the worst peak-to-trough loss.
+
+### 6) What is exposure?
+Exposure shows how much time the strategy was actually in the market.
+
+In this project, it is calculated from the position column.
+
+### 7) What is trade count?
+Trade count shows how many times the strategy changed its position.
+
+### 8) Why do we use results_ma_btc.csv for metrics instead of raw prices?
+We use results_ma_btc.csv because it already contains the backtest outputs:
+- asset_return
+- strategy_return
+- equity_asset
+- equity_strategy
+- position
+
+These are the values needed to calculate strategy metrics.
+
+### 9) What did Day 4 show in this project?
+Day 4 showed that the strategy performed better than buy-and-hold in this backtest period because:
+- strategy loss was much smaller
+- volatility was lower
+- max drawdown was lower
+- Sharpe ratio was better
+- exposure was about 50.79%
+- trade count was 7
