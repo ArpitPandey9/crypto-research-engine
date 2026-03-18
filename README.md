@@ -7,6 +7,7 @@ A research-grade crypto data + backtesting pipeline (BTC/ETH initially). Built w
 - [x] Day 2: BTC+ETH ingestion + validation + long/wide datasets + returns + cumulative returns
 - [x] Day 3: BTC moving-average crossover strategy + signals + backtest + equity curves
 - [x] Day 4: strategy performance metrics (return, volatility, Sharpe, drawdown, exposure, trade count)
+- [x] Day 5: cost-aware backtesting (gross vs net returns, transaction costs, gross vs net equity)
 
 ## Quickstart
 ```bash

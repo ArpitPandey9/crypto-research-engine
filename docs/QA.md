@@ -239,3 +239,36 @@ Day 4 showed that the strategy performed better than buy-and-hold in this backte
 - Sharpe ratio was better
 - exposure was about 50.79%
 - trade count was 7
+
+---
+
+## Day 5 — Cost-Aware Backtesting
+
+### 1) What is transaction cost?
+Transaction cost is the cost paid when a trade happens. It can represent fees, spread, or slippage.
+
+### 2) What is gross strategy return?
+Gross strategy return is the strategy return before subtracting trading costs.
+
+### 3) What is net strategy return?
+Net strategy return is the strategy return after subtracting trading costs.
+
+### 4) What is trade_flag?
+trade_flag shows whether the position changed on a row.
+- 1 = a trade happened
+- 0 = no trade happened
+
+### 5) Why do we need both gross and net strategy return?
+We need both so we can compare ideal strategy performance before costs and realistic strategy performance after costs.
+
+### 6) Why is net strategy return more realistic?
+Net strategy return is more realistic because it includes transaction costs, while gross strategy return assumes trading is free.
+
+### 7) What does cost_per_trade = 0.001 mean?
+It means a transaction cost of 0.1% per trade.
+
+### 8) What is the difference between equity_strategy_gross and equity_strategy_net?
+equity_strategy_gross shows the growth of $1 before costs, while equity_strategy_net shows the growth of $1 after costs.
+
+### 9) What did Day 5 show in this project?
+Day 5 showed that the strategy still performed better than buy-and-hold after costs, but transaction costs reduced the final strategy result.
