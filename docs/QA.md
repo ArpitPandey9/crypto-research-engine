@@ -272,3 +272,64 @@ equity_strategy_gross shows the growth of $1 before costs, while equity_strategy
 
 ### 9) What did Day 5 show in this project?
 Day 5 showed that the strategy still performed better than buy-and-hold after costs, but transaction costs reduced the final strategy result.
+
+---
+
+## Day 6 — Streamlit Frontend
+
+### 1) What is Streamlit?
+Streamlit is a Python framework used to turn Python code into an interactive web app.
+
+### 2) Why did we add a Streamlit frontend?
+We added a Streamlit frontend to make the project more usable, visible, and understandable for non-technical users such as recruiters and hiring managers.
+
+### 3) What user inputs does the app currently support?
+The app currently supports:
+- Fast SMA Window
+- Slow SMA Window
+- Transaction Cost
+
+### 4) Why do we use sliders for Fast SMA and Slow SMA?
+We use sliders because SMA window values are integer parameters and sliders make them easy to adjust interactively.
+
+### 5) Why do we use number_input for transaction cost?
+We use number_input because transaction cost is a small decimal value and needs more precise control than a slider.
+
+### 6) Why do we validate that Fast SMA must be smaller than Slow SMA?
+We validate this because the fast moving average should be smaller than the slow moving average. If the user selects invalid values, the app shows a warning and stops instead of producing broken results.
+
+### 7) What does st.warning() do?
+st.warning() displays a warning message inside the Streamlit app.
+
+### 8) What does st.stop() do?
+st.stop() stops the app from running the remaining code after a warning or stopping condition is triggered.
+
+### 9) Why do we import generate_signals() and backtest() into app.py?
+We import them so the dashboard can use the real strategy logic already built in the project instead of rewriting it again inside the app.
+
+### 10) Why do we use Path in app.py?
+We use Path to build the file path to the processed data file in a clean and reliable way.
+
+### 11) Why do we use chart_df instead of plotting the full results table?
+We use chart_df so we only plot the most important equity columns and keep the chart clean and readable.
+
+### 12) What does st.line_chart() do?
+st.line_chart() displays a line chart in the Streamlit app using the selected DataFrame columns.
+
+### 13) Why do we use st.columns(3)?
+We use st.columns(3) to create three side-by-side layout sections so the dashboard looks cleaner and the metric cards are easier to compare.
+
+### 14) What does col1.metric() do?
+col1.metric() displays an important value with a label inside a metric card in the first column.
+
+### 15) Why do we use iloc[-1] in the metric values?
+We use iloc[-1] because we want the latest or final value from the equity curve, not the full history.
+
+### 16) Why is the explanation section important?
+The explanation section helps non-technical users understand what the dashboard is showing and what the chart and metrics mean.
+
+### 17) Why do we include a backtest preview table?
+We include a backtest preview table to make the dashboard more transparent and allow the user to inspect actual strategy output rows.
+
+### 18) What did Day 6 add to the project?
+Day 6 added an interactive Streamlit frontend that allows a user to explore the BTC moving-average crossover strategy through inputs, charts, metrics, and preview tables.
