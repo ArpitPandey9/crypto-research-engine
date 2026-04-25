@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest hypothesis coverage
+
+      - name: Run full test suite
+        run: |
+          coverage erase
+          coverage run -m pytest tests/test_whale_signals.py tests/test_whale_signals_properties.py tests/test_run_whale_signals_integration.py tests/test_run_whale_signals_unit.py tests/test_app_streamlit.py
+          coverage report -m
+          coverage xml
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-artifacts
+          path: |
+            coverage.xml
+            .coverage
