@@ -1,0 +1,18 @@
+[run]
+branch = True
+source =
+    src
+omit =
+    tests/*
+    */tests/*
+    /tmp/pytest-of-*/*
+    */site-packages/*
+
+[report]
+show_missing = True
+skip_empty = True
+omit =
+    tests/*
+    */tests/*
+    /tmp/pytest-of-*/*
+    */site-packages/*
