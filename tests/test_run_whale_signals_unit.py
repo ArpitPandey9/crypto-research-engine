@@ -60,14 +60,19 @@ def test_extract_table_name_returns_unknown_for_non_from_query() -> None:
     assert runner._extract_table_name_from_query("PRAGMA table_info(x)") == "unknown_table"
 
 
-def test_load_table_reraises_non_missing_table_database_error(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_load_table_reraises_non_missing_table_database_error(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "unit.db"
+
     def fake_read_sql_query(query: str, conn) -> pd.DataFrame:
         raise PandasDatabaseError("Execution failed on sql 'SELECT 1': syntax error")
 
     monkeypatch.setattr(runner.pd, "read_sql_query", fake_read_sql_query)
 
     with pytest.raises(PandasDatabaseError):
-        runner.load_table("SELECT 1")
+        runner.load_table("SELECT 1", db_path=db_path)
 
 
 def test_main_reports_strategy_configuration_error(
