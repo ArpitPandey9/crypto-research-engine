@@ -8,4 +8,3 @@ hypothesis
 coverage
 web3
 python-dotenv
-EOF
