@@ -246,6 +246,8 @@ Transaction cost is charged when the position changes.
 
 ## Streamlit Dashboard
 
+![Whale Flow Research Dashboard](docs/assets/dashboard-preview.png)
+
 The dashboard is implemented in:
 
 ```text
