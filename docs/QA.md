@@ -1,335 +1,379 @@
-# Q&A — Crypto Research Engine v1
-This file is my "interview memory" and proof of understanding.
-I write answers in my own words so I can explain the system end-to-end.
+# Q&A — Crypto Research Engine
+
+This file is my interview memory and proof of understanding.
+
+The purpose of this document is to help me explain the project clearly in interviews, mentor reviews, and technical discussions.
 
 ---
 
-## Day 1 — Foundation: Environment + Ingestion + Validation (BTC)
+## 1. What problem does this project solve?
 
-### 1) What problem are we solving with this project?
-We are building a research-grade crypto pipeline that can reliably:
-- ingest market data
-- validate it (quality checks)
-- store it reproducibly (raw + processed)
-- compute research features (returns)
-- later run strategies and backtests
+This project studies whether large on-chain whale transfers can be converted into useful crypto market research signals.
 
-The goal is to make the work feel cohesive and production-like, not just notebooks.
+Most beginner crypto projects only look at price. This project goes one layer deeper by combining:
 
-### 2) What is a virtual environment (.venv) and why do we use it?
-A virtual environment is an isolated Python setup for this project.
-It prevents conflicts between libraries and versions across different projects.
-It helps reproducibility: someone else can install the same dependencies and run the same code.
+- on-chain transfer activity
+- local database storage
+- market price normalization
+- whale-flow signal generation
+- backtesting
+- dashboard presentation
+- automated testing
 
-### 3) What is an API (in simple words)?
-An API is a way to request data from a server using a structured format (usually HTTP).
-In our case, CoinGecko provides price data through an API endpoint.
-
-### 4) What is a DataFrame?
-A pandas DataFrame is like an Excel table in Python:
-- rows and columns
-- each column has a name
-We use it to store and manipulate price data.
-
-### 5) Why do we separate raw vs processed data?
-- Raw data = saved as close as possible to what we downloaded (source truth).
-- Processed data = cleaned and standardized for analysis (typed dates, sorted, deduplicated).
-This separation improves traceability and reproducibility.
-
-### 6) What does “data ingestion” mean?
-Data ingestion means fetching data from a source (API/CSV), converting it into a structured form (DataFrame), and saving it so it can be reused.
-
-### 7) Why do we validate data?
-Validation is a quality gate.
-Without validation, bad data (duplicates, missing values, wrong dates) can silently create incorrect results.
-Validation ensures “garbage in → garbage out” doesn’t happen.
-
-### 8) What checks did we implement in validation and why?
-- Required columns exist: prevents schema mismatch bugs.
-- Dates parse correctly: ensures time-series operations work.
-- Prices are not missing and > 0: missing/invalid prices break returns.
-- No duplicates per (coin_id, date): duplicates break time-series logic and can distort returns/backtests.
-
-### 9) Why did we face duplicate (coin_id, date) rows and how did we fix it?
-CoinGecko can return multiple timestamps that fall on the same calendar day.
-When we convert timestamps to YYYY-MM-DD, multiple rows can collapse into the same date.
-Fix: deduplicate per (coin_id, date), keeping the last timestamp as a proxy for “daily close”.
-
-### 10) What does the Day 1 pipeline do end-to-end?
-- Fetch BTC prices from CoinGecko
-- Convert timestamps to date
-- Validate the dataset
-- Save raw and processed outputs to CSV
-This creates a reproducible dataset foundation.
+The goal is to build a system that looks closer to a research desk workflow than a simple dashboard.
 
 ---
 
-## Day 2 — Multi-Asset Pipeline + Returns Layer (BTC + ETH)
+## 2. Why is whale-flow analysis useful?
 
-### 1) What changed from Day 1 to Day 2?
-Day 1 was BTC-only ingestion and validation.
-Day 2 upgraded the system to:
-- ingest BTC + ETH
-- save datasets in long + wide format
-- compute daily returns and cumulative returns
+Whales are large wallets or institutions whose transfers can affect market structure.
 
-### 2) What is long format vs wide format?
-- Long format: each row is one observation (date, coin_id, price).
-  Example: 2026-03-10, bitcoin, 80000
-- Wide format: each row is a date and each asset is a column.
-  Example: date | bitcoin | ethereum
+For example:
 
-Long is good for storage and filtering.
-Wide is good for calculations like returns, correlations, and portfolios.
+- large inflows into exchanges can sometimes suggest possible selling pressure
+- large withdrawals from exchanges can sometimes suggest accumulation or custody movement
+- repeated large transfers may reveal changing market behavior
 
-### 3) Why do we create a wide dataset?
-Because research math becomes easy:
-- returns can be computed for all assets at once
-- correlation matrices are simple
-- portfolio calculations become straightforward
-
-### 4) What is a “return” and why do we compute it?
-A return is the percentage change in price from one day to the next.
-Returns are what strategies trade on, not raw price.
-Strategies, risk metrics, and backtests all depend on returns.
-
-### 5) What does pct_change() do?
-pct_change() computes simple returns:
-(today_price / yesterday_price) - 1
-
-### 6) Why do we dropna() after pct_change()?
-The first row becomes NaN because there is no “previous day” to compare against.
-dropna() removes that first invalid row.
-
-### 7) What is cumulative return / cumulative growth of $1?
-Cumulative growth of $1 shows what happens if you invest $1 at the start.
-We compute daily growth factors: (1 + return)
-Then multiply them across time:
-(1 + returns).cumprod()
-This gives a growth curve that is easy to visualize.
-
-### 8) Why do we plot cumulative growth?
-Plots are a sanity check.
-They quickly reveal issues like:
-- missing data
-- date sorting errors
-- unrealistic spikes
-- a flat line (usually a bug)
-Visualization helps catch errors early.
-
-### 9) What artifacts do we produce by Day 2 (what files exist)?
-Saved under data/processed:
-- prices_btc_eth_long_processed.csv
-- prices_btc_eth_wide_processed.csv
-- returns_btc_eth_wide.csv
-- cum_returns_btc_eth.csv
-
-Saved under data/raw:
-- prices_btc_eth_long_raw.csv
-
-### 10) What does the Day 2 system do end-to-end?
-- Fetch BTC and ETH daily prices
-- Validate data quality
-- Save raw long dataset
-- Create processed long dataset (typed date, sorted)
-- Create processed wide dataset (date index, coin columns)
-- Compute returns
-- Compute cumulative growth
-- Save outputs for reproducible research
+This project does not claim whale flow is always predictive. It treats whale activity as a research signal that must be tested.
 
 ---
 
-## My “Mini Interview” (I should be able to answer quickly)
+## 3. What is the full pipeline?
 
-### Explain the project in 3 lines:
-1) It downloads BTC/ETH daily prices, validates them, and saves clean datasets.
-2) It computes daily returns and cumulative growth curves.
-3) It creates a reproducible foundation for strategies and backtests.
+The pipeline is:
 
-### What is the biggest risk if you skip validation?
-You can get misleading backtest results because bad data silently corrupts research.
-
-### Why is “depth” important (feedback I received)?
-A few strong, cohesive, well-engineered outputs are more credible than many shallow overlapping repos.
-
----
-
-## Day 3 — Strategy Layer (MA Crossover)
-
-### 1) What is a moving average?
-A moving average is the average of the last N prices. It smooths the price series and helps identify the trend.
-
-### 2) What is the difference between fast SMA and slow SMA?
-The fast SMA reacts more quickly to recent price changes, while the slow SMA reacts more slowly and represents the broader trend.
-
-### 3) What is a signal?
-A signal is the strategy’s instruction about whether to be in the market or stay out.
-
-### 4) What is a position?
-A position is the actual market exposure taken by the strategy.
-
-### 5) Why do we use shift(1)?
-We use shift(1) so that today’s position is based on yesterday’s signal. This avoids lookahead bias.
-
-### 6) What is lookahead bias?
-Lookahead bias happens when a backtest uses information that would not have been available at the time of the real decision.
-
-### 7) What is strategy return?
-Strategy return is the return earned by the strategy after applying the position rules to the asset return.
-
-### 8) What is the difference between equity_asset and equity_strategy?
-equity_asset shows the growth of $1 in buy-and-hold, while equity_strategy shows the growth of $1 under the strategy rules.
-
-### 9) Why did the strategy outperform buy-and-hold here?
-The strategy outperformed because it stayed out of the market during some weak periods and avoided part of the losses.
+```text
+Ethereum activity
+      ↓
+whale transfer detection
+      ↓
+SQLite storage
+      ↓
+price data download
+      ↓
+USD volume normalization
+      ↓
+enriched whale events
+      ↓
+rolling whale-flow signal
+      ↓
+cost-aware backtest
+      ↓
+Streamlit dashboard
+      ↓
+tests + CI validation
+```
 
 ---
 
-## Day 4 — Performance Metrics Layer
+## 4. Why use SQLite?
 
-### 1) What is total return?
-Total return shows the overall profit or loss from the beginning to the end of the backtest.
+SQLite is useful because it gives the project a real local data layer without needing a heavy external database server.
 
-Formula:
-final equity - 1
+It helps with:
 
-### 2) What is annualized return?
-Annualized return shows what the strategy’s return would look like on a yearly basis.
+- reproducibility
+- structured tables
+- repeatable reads
+- local research workflow
+- easier testing
 
-It helps compare strategies fairly across different time periods.
-
-### 3) What is annualized volatility?
-Annualized volatility measures how much the returns move around on a yearly basis.
-
-It is used as a measure of risk or instability.
-
-### 4) What is Sharpe ratio?
-Sharpe ratio measures how much return the strategy generates for each unit of risk.
-
-A higher Sharpe ratio usually means better risk-adjusted performance.
-
-### 5) What is max drawdown?
-Max drawdown is the biggest fall from a previous peak during the backtest.
-
-It shows the worst peak-to-trough loss.
-
-### 6) What is exposure?
-Exposure shows how much time the strategy was actually in the market.
-
-In this project, it is calculated from the position column.
-
-### 7) What is trade count?
-Trade count shows how many times the strategy changed its position.
-
-### 8) Why do we use results_ma_btc.csv for metrics instead of raw prices?
-We use results_ma_btc.csv because it already contains the backtest outputs:
-- asset_return
-- strategy_return
-- equity_asset
-- equity_strategy
-- position
-
-These are the values needed to calculate strategy metrics.
-
-### 9) What did Day 4 show in this project?
-Day 4 showed that the strategy performed better than buy-and-hold in this backtest period because:
-- strategy loss was much smaller
-- volatility was lower
-- max drawdown was lower
-- Sharpe ratio was better
-- exposure was about 50.79%
-- trade count was 7
+It also makes the project feel more like a system rather than a collection of loose CSV files.
 
 ---
 
-## Day 5 — Cost-Aware Backtesting
+## 5. What are the important database tables?
 
-### 1) What is transaction cost?
-Transaction cost is the cost paid when a trade happens. It can represent fees, spread, or slippage.
+The main tables are:
 
-### 2) What is gross strategy return?
-Gross strategy return is the strategy return before subtracting trading costs.
+```text
+institutional_transfers
+historical_prices
+enriched_whales
+```
 
-### 3) What is net strategy return?
-Net strategy return is the strategy return after subtracting trading costs.
+`institutional_transfers` stores detected large transfers.
 
-### 4) What is trade_flag?
-trade_flag shows whether the position changed on a row.
-- 1 = a trade happened
-- 0 = no trade happened
+`historical_prices` stores market price data.
 
-### 5) Why do we need both gross and net strategy return?
-We need both so we can compare ideal strategy performance before costs and realistic strategy performance after costs.
-
-### 6) Why is net strategy return more realistic?
-Net strategy return is more realistic because it includes transaction costs, while gross strategy return assumes trading is free.
-
-### 7) What does cost_per_trade = 0.001 mean?
-It means a transaction cost of 0.1% per trade.
-
-### 8) What is the difference between equity_strategy_gross and equity_strategy_net?
-equity_strategy_gross shows the growth of $1 before costs, while equity_strategy_net shows the growth of $1 after costs.
-
-### 9) What did Day 5 show in this project?
-Day 5 showed that the strategy still performed better than buy-and-hold after costs, but transaction costs reduced the final strategy result.
+`enriched_whales` combines whale events with price information so raw token movement can become USD-denominated whale volume.
 
 ---
 
-## Day 6 — Streamlit Frontend
+## 6. What does price normalization mean?
 
-### 1) What is Streamlit?
-Streamlit is a Python framework used to turn Python code into an interactive web app.
+Raw token amounts are not directly comparable.
 
-### 2) Why did we add a Streamlit frontend?
-We added a Streamlit frontend to make the project more usable, visible, and understandable for non-technical users such as recruiters and hiring managers.
+For example:
 
-### 3) What user inputs does the app currently support?
-The app currently supports:
-- Fast SMA Window
-- Slow SMA Window
-- Transaction Cost
+```text
+10 ETH
+1 WBTC
+100,000 USDC
+```
 
-### 4) Why do we use sliders for Fast SMA and Slow SMA?
-We use sliders because SMA window values are integer parameters and sliders make them easy to adjust interactively.
+These have different meanings unless converted into USD.
 
-### 5) Why do we use number_input for transaction cost?
-We use number_input because transaction cost is a small decimal value and needs more precise control than a slider.
+Price normalization means converting token amounts into dollar value:
 
-### 6) Why do we validate that Fast SMA must be smaller than Slow SMA?
-We validate this because the fast moving average should be smaller than the slow moving average. If the user selects invalid values, the app shows a warning and stops instead of producing broken results.
+```text
+token amount × token price = true USD volume
+```
 
-### 7) What does st.warning() do?
-st.warning() displays a warning message inside the Streamlit app.
+This allows the system to compare whale movement across assets.
 
-### 8) What does st.stop() do?
-st.stop() stops the app from running the remaining code after a warning or stopping condition is triggered.
+---
 
-### 9) Why do we import generate_signals() and backtest() into app.py?
-We import them so the dashboard can use the real strategy logic already built in the project instead of rewriting it again inside the app.
+## 7. What is rolling net whale flow?
 
-### 10) Why do we use Path in app.py?
-We use Path to build the file path to the processed data file in a clean and reliable way.
+Rolling net whale flow measures recent whale pressure over a selected time window.
 
-### 11) Why do we use chart_df instead of plotting the full results table?
-We use chart_df so we only plot the most important equity columns and keep the chart clean and readable.
+The dashboard allows the user to change the rolling window.
 
-### 12) What does st.line_chart() do?
-st.line_chart() displays a line chart in the Streamlit app using the selected DataFrame columns.
+A smaller window reacts faster.
 
-### 13) Why do we use st.columns(3)?
-We use st.columns(3) to create three side-by-side layout sections so the dashboard looks cleaner and the metric cards are easier to compare.
+A larger window smooths noise.
 
-### 14) What does col1.metric() do?
-col1.metric() displays an important value with a label inside a metric card in the first column.
+This is important because raw whale events can be noisy, but rolling flow helps reveal pressure over time.
 
-### 15) Why do we use iloc[-1] in the metric values?
-We use iloc[-1] because we want the latest or final value from the equity curve, not the full history.
+---
 
-### 16) Why is the explanation section important?
-The explanation section helps non-technical users understand what the dashboard is showing and what the chart and metrics mean.
+## 8. How is the signal generated?
 
-### 17) Why do we include a backtest preview table?
-We include a backtest preview table to make the dashboard more transparent and allow the user to inspect actual strategy output rows.
+The signal is based on rolling net whale flow.
 
-### 18) What did Day 6 add to the project?
-Day 6 added an interactive Streamlit frontend that allows a user to explore the BTC moving-average crossover strategy through inputs, charts, metrics, and preview tables.
+```text
+positive rolling flow above threshold  → long signal
+negative rolling flow below threshold  → short signal
+otherwise                              → flat signal
+```
+
+The threshold prevents the model from reacting to tiny or meaningless movement.
+
+---
+
+## 9. Why does the backtest shift the signal?
+
+The strategy uses the signal from one hour and applies the position from the next hour.
+
+This prevents lookahead bias.
+
+Without shifting, the backtest could accidentally use information from the same period it is trying to trade, which would make the result unrealistic.
+
+---
+
+## 10. What is lookahead bias?
+
+Lookahead bias happens when a backtest uses information that would not have been available at the time of decision.
+
+Example:
+
+If I use a signal from 1 PM to trade the 1 PM return, I may be cheating because the full 1 PM data may only be known after that hour finishes.
+
+To avoid this, the project applies:
+
+```text
+signal at time t
+position at time t+1
+```
+
+---
+
+## 11. Why include transaction costs?
+
+A strategy that looks profitable before costs may fail after costs.
+
+Transaction costs make the backtest more realistic.
+
+The project calculates:
+
+- gross strategy return
+- net strategy return
+- transaction cost
+- trade flag
+
+This helps compare ideal performance versus more realistic performance.
+
+---
+
+## 12. What does the Streamlit dashboard show?
+
+The dashboard shows:
+
+- selected asset
+- latest whale event time
+- latest market price time
+- database last updated time
+- number of target-asset event rows
+- research frame rows
+- total trades
+- latest signal
+- latest rolling net flow
+- buy-and-hold equity
+- strategy net equity
+- alpha versus buy-and-hold
+- equity curve comparison
+- rolling whale net flow
+- hourly whale USD volume
+- latest research rows
+- signal distribution
+
+The dashboard is designed for research interpretation, not for direct trading instructions.
+
+---
+
+## 13. What do the tests prove?
+
+The test suite checks:
+
+- signal generation behavior
+- invalid input handling
+- correct target asset filtering
+- exchange receiver pressure logic
+- backtest column outputs
+- shifted position logic
+- integration with temporary SQLite databases
+- CLI-style runner behavior
+- Streamlit app rendering
+- property-based backtest invariants
+
+This proves the system is not just visually working; important logic is being tested.
+
+---
+
+## 14. Why was the SQLite CI bug important?
+
+The CI bug happened because a test depended on a default database path.
+
+That worked locally but failed in CI.
+
+The fix was to use `pytest` temporary paths and pass `db_path` explicitly.
+
+The lesson:
+
+> Tests should be environment-independent.
+
+This is real engineering maturity because the test should not depend on a local machine path.
+
+---
+
+## 15. Why did we add pytest.ini?
+
+Local tests were failing because Python could not reliably find the `src` package.
+
+`pytest.ini` tells pytest:
+
+```text
+pythonpath = .
+testpaths = tests
+```
+
+This makes local test execution consistent.
+
+Now:
+
+```bash
+python -m pytest -q
+```
+
+runs correctly.
+
+---
+
+## 16. Why is `.env` ignored?
+
+`.env` can contain sensitive values such as RPC URLs or API keys.
+
+Even if an RPC URL seems harmless, committing credentials is a bad habit.
+
+The project uses `.gitignore` to protect:
+
+- `.env`
+- local database files
+- virtual environments
+- cache folders
+- coverage artifacts
+
+---
+
+## 17. What is the current limitation of the project?
+
+The project is still a research prototype.
+
+Current limitations include:
+
+- limited asset support
+- local database dependency
+- selected on-chain parsing logic
+- no continuous historical indexer yet
+- no production alerting system yet
+- no exchange inflow/outflow classification yet
+- not a financial advice engine
+
+These limitations are acceptable because the goal is to build a strong research foundation first.
+
+---
+
+## 18. How would I explain this project in an interview?
+
+I would say:
+
+> I built a crypto research engine that detects whale transfers, stores them in SQLite, normalizes raw token movements into USD volume using market prices, converts that flow into rolling signals, backtests the strategy with transaction costs, and presents the output through a tested Streamlit dashboard.
+
+Then I would add:
+
+> The main learning was not just building charts. The real learning was building a reproducible pipeline, avoiding lookahead bias, making tests environment-independent, and improving the project from a learner script into a research-style system.
+
+---
+
+## 19. What makes this stronger than a normal beginner project?
+
+It is stronger because it includes:
+
+- real project structure
+- data layer
+- database layer
+- strategy layer
+- backtest layer
+- dashboard layer
+- testing layer
+- CI/CD layer
+- security hygiene
+- documented limitations
+
+A beginner dashboard usually only shows charts. This project shows system thinking.
+
+---
+
+## 20. What is the next high-value upgrade?
+
+The next high-value upgrade is whale-price divergence.
+
+Example:
+
+```text
+price rising + whales exiting       → possible distribution risk
+price falling + whales accumulating → possible accumulation signal
+price rising + whales accumulating  → possible trend confirmation
+price falling + whales exiting      → possible danger regime
+```
+
+This would make the project more decision-maker friendly and more protocol-aware.
+
+---
+
+## 21. What is the long-term direction?
+
+The long-term direction is to move from price-only research toward protocol-level analytics.
+
+Future upgrades may include:
+
+- exchange inflow/outflow labeling
+- liquidation risk engine
+- DeFi liquidity movement
+- protocol state analysis
+- smart contract event analysis
+- Foundry-based protocol simulation
+- risk scoring dashboard
+
+The goal is to make the project look like a serious crypto research system.
