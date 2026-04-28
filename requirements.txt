@@ -3,3 +3,9 @@ numpy
 matplotlib
 requests
 streamlit
+pytest
+hypothesis
+coverage
+web3
+python-dotenv
+EOF
