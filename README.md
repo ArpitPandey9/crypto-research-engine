@@ -50,6 +50,7 @@ The project currently includes:
 - Whale-flow signal generation
 - Whale-flow mechanism layer design note
 - Liquidity depth size-ratio risk helpers
+- Flow-context classification helpers
 - Rolling net-flow strategy logic
 - Cost-aware vectorized backtesting
 - Streamlit dashboard
@@ -63,7 +64,7 @@ The project currently includes:
 Current test status:
 
 ```text
-51 tests passing
+73 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -128,7 +129,8 @@ crypto-research-engine/
 │   │   ├── fetch_prices.py
 │   │   └── onchain_client.py
 │   ├── analytics/
-│   │   └── liquidity_risk.py
+│   │   ├── liquidity_risk.py
+│   │   └── flow_context.py
 │   └── strategies/
 │       ├── run_whale_signals.py
 │       └── whale_signals.py
@@ -138,7 +140,8 @@ crypto-research-engine/
     ├── test_run_whale_signals_unit.py
     ├── test_whale_signals.py
     ├── test_whale_signals_properties.py
-    └── test_liquidity_risk.py
+    ├── test_liquidity_risk.py
+    └── test_flow_context.py
 ```
 
 ---
@@ -369,7 +372,7 @@ coverage report -m
 Current local result:
 
 ```text
-51 passed
+73 passed
 91% total coverage
 ```
 
