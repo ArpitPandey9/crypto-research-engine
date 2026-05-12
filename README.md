@@ -48,6 +48,8 @@ The project currently includes:
 - USD normalization of whale volume
 - Enriched whale-event table
 - Whale-flow signal generation
+- Whale-flow mechanism layer design note
+- Liquidity depth size-ratio risk helpers
 - Rolling net-flow strategy logic
 - Cost-aware vectorized backtesting
 - Streamlit dashboard
@@ -61,7 +63,7 @@ The project currently includes:
 Current test status:
 
 ```text
-33 tests passing
+51 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -119,11 +121,14 @@ crypto-research-engine/
 │   └── db/
 │       └── whale_data.db        # local only, ignored by git
 ├── docs/
-│   └── QA.md
+│   ├── QA.md
+│   └── whale_flow_mechanism_layer.md
 ├── src/
 │   ├── data/
 │   │   ├── fetch_prices.py
 │   │   └── onchain_client.py
+│   ├── analytics/
+│   │   └── liquidity_risk.py
 │   └── strategies/
 │       ├── run_whale_signals.py
 │       └── whale_signals.py
@@ -132,7 +137,8 @@ crypto-research-engine/
     ├── test_run_whale_signals_integration.py
     ├── test_run_whale_signals_unit.py
     ├── test_whale_signals.py
-    └── test_whale_signals_properties.py
+    ├── test_whale_signals_properties.py
+    └── test_liquidity_risk.py
 ```
 
 ---
@@ -363,7 +369,7 @@ coverage report -m
 Current local result:
 
 ```text
-33 passed
+51 passed
 91% total coverage
 ```
 
