@@ -51,6 +51,7 @@ The project currently includes:
 - Whale-flow mechanism layer design note
 - Liquidity depth size-ratio risk helpers
 - Flow-context classification helpers
+- Dashboard-ready mechanism signal builder
 - Rolling net-flow strategy logic
 - Cost-aware vectorized backtesting
 - Streamlit dashboard
@@ -64,7 +65,7 @@ The project currently includes:
 Current test status:
 
 ```text
-73 tests passing
+86 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -130,7 +131,8 @@ crypto-research-engine/
 │   │   └── onchain_client.py
 │   ├── analytics/
 │   │   ├── liquidity_risk.py
-│   │   └── flow_context.py
+│   │   ├── flow_context.py
+│   │   └── mechanism_signal.py
 │   └── strategies/
 │       ├── run_whale_signals.py
 │       └── whale_signals.py
@@ -141,7 +143,8 @@ crypto-research-engine/
     ├── test_whale_signals.py
     ├── test_whale_signals_properties.py
     ├── test_liquidity_risk.py
-    └── test_flow_context.py
+    ├── test_flow_context.py
+    └── test_mechanism_signal.py
 ```
 
 ---
@@ -372,7 +375,7 @@ coverage report -m
 Current local result:
 
 ```text
-73 passed
+86 passed
 91% total coverage
 ```
 
