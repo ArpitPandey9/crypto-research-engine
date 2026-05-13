@@ -130,7 +130,7 @@ crypto-research-engine/
 │   ├── data/
 │   │   ├── fetch_prices.py
 │   │   ├── onchain_client.py
-│   └── dexscreener_client.py
+│   │   └── dexscreener_client.py
 │   ├── analytics/
 │   │   ├── liquidity_risk.py
 │   │   ├── flow_context.py
