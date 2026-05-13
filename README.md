@@ -54,6 +54,7 @@ The project currently includes:
 - Dashboard-ready mechanism signal builder
 - Real DEX pool-depth client using DEX Screener
 - Real DEX pool-depth SQLite ingestion
+- Real DEX pool-depth repository access layer
 - Rolling net-flow strategy logic
 - Cost-aware vectorized backtesting
 - Streamlit dashboard
@@ -67,7 +68,7 @@ The project currently includes:
 Current test status:
 
 ```text
-97 tests passing
+104 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -132,7 +133,8 @@ crypto-research-engine/
 │   │   ├── fetch_prices.py
 │   │   ├── onchain_client.py
 │   │   ├── dexscreener_client.py
-│   │   └── update_dex_pool_depths.py
+│   │   ├── update_dex_pool_depths.py
+│   │   └── pool_depth_repository.py
 │   ├── analytics/
 │   │   ├── liquidity_risk.py
 │   │   ├── flow_context.py
@@ -150,7 +152,8 @@ crypto-research-engine/
     ├── test_flow_context.py
     ├── test_mechanism_signal.py
     ├── test_dexscreener_client.py
-    └── test_update_dex_pool_depths.py
+    ├── test_update_dex_pool_depths.py
+    └── test_pool_depth_repository.py
 ```
 
 ---
@@ -381,7 +384,7 @@ coverage report -m
 Current local result:
 
 ```text
-97 passed
+104 passed
 91% total coverage
 ```
 
