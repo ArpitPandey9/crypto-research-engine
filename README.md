@@ -52,6 +52,7 @@ The project currently includes:
 - Liquidity depth size-ratio risk helpers
 - Flow-context classification helpers
 - Dashboard-ready mechanism signal builder
+- Real-data mechanism signal adapter
 - Real DEX pool-depth client using DEX Screener
 - Real DEX pool-depth SQLite ingestion
 - Real DEX pool-depth repository access layer
@@ -68,7 +69,7 @@ The project currently includes:
 Current test status:
 
 ```text
-104 tests passing
+110 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -138,7 +139,8 @@ crypto-research-engine/
 │   ├── analytics/
 │   │   ├── liquidity_risk.py
 │   │   ├── flow_context.py
-│   │   └── mechanism_signal.py
+│   │   ├── mechanism_signal.py
+│   │   └── real_mechanism_signal.py
 │   └── strategies/
 │       ├── run_whale_signals.py
 │       └── whale_signals.py
@@ -153,7 +155,8 @@ crypto-research-engine/
     ├── test_mechanism_signal.py
     ├── test_dexscreener_client.py
     ├── test_update_dex_pool_depths.py
-    └── test_pool_depth_repository.py
+    ├── test_pool_depth_repository.py
+    └── test_real_mechanism_signal.py
 ```
 
 ---
@@ -384,7 +387,7 @@ coverage report -m
 Current local result:
 
 ```text
-104 passed
+110 passed
 91% total coverage
 ```
 
