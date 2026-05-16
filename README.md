@@ -50,6 +50,7 @@ The project currently includes:
 - Whale-flow signal generation
 - Whale-flow mechanism layer design note
 - Liquidity depth size-ratio risk helpers
+- Property-based liquidity-risk invariant tests
 - Flow-context classification helpers
 - Dashboard-ready mechanism signal builder
 - Real-data mechanism signal adapter
@@ -69,7 +70,7 @@ The project currently includes:
 Current test status:
 
 ```text
-110 tests passing
+114 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -151,6 +152,7 @@ crypto-research-engine/
     ├── test_whale_signals.py
     ├── test_whale_signals_properties.py
     ├── test_liquidity_risk.py
+    ├── test_liquidity_risk_properties.py
     ├── test_flow_context.py
     ├── test_mechanism_signal.py
     ├── test_dexscreener_client.py
@@ -387,7 +389,7 @@ coverage report -m
 Current local result:
 
 ```text
-110 passed
+114 passed
 91% total coverage
 ```
 
