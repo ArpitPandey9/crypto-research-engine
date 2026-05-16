@@ -25,6 +25,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from src.analytics.real_mechanism_signal import build_real_mechanism_signal
 from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy
 
 
@@ -193,6 +194,16 @@ with st.sidebar.form("research_controls"):
         help="0.001 means 0.10% cost per position change.",
     )
 
+    volatility_regime = st.selectbox(
+        "Volatility regime context",
+        options=["normal", "elevated", "extreme"],
+        index=0,
+        help=(
+            "Manual research context until an automatic volatility-regime "
+            "classifier is added. This value is not inferred automatically yet."
+        ),
+    )
+
     st.form_submit_button("Run analysis", type="primary")
 
 
@@ -309,6 +320,68 @@ col5.metric("Latest rolling net flow", f"${latest_rolling_flow:,.2f}")
 col6.metric("Buy & hold equity", f"{final_asset_equity:.4f}x")
 col7.metric("Strategy net equity", f"{final_strategy_equity:.4f}x")
 col8.metric("Alpha vs buy & hold", f"{alpha_vs_buy_hold:.4f}x")
+
+
+# ==========================================
+# MECHANISM SIGNAL / LIQUIDITY CONTEXT
+# ==========================================
+st.subheader("Mechanism Signal / Liquidity Context")
+st.caption(
+    "Uses the latest rolling whale-flow value and the latest stored real DEX pool-depth snapshot. "
+    "Verified source/destination address labels are not available yet, so flow context is shown as Unknown."
+)
+
+if pd.isna(latest_rolling_flow) or latest_rolling_flow == 0:
+    st.warning(
+        "Mechanism signal unavailable because latest rolling whale-flow is zero or missing. "
+        "No fake pool-impact signal is generated."
+    )
+else:
+    try:
+        mechanism_result = build_real_mechanism_signal(
+            asset_symbol=target_asset,
+            whale_flow_usd=latest_rolling_flow,
+            volatility_regime=volatility_regime,
+            db_path=DB_PATH,
+        )
+
+        if not mechanism_result.is_available:
+            st.warning(mechanism_result.unavailable_reason)
+        else:
+            mechanism_signal = mechanism_result.signal
+            mechanism_pool = mechanism_result.pool_depth
+
+            mech_col1, mech_col2, mech_col3, mech_col4 = st.columns(4)
+            mech_col1.metric("Real pool depth", f"${mechanism_pool.liquidity_usd:,.2f}")
+            mech_col2.metric("Size ratio", f"{mechanism_signal.size_ratio * 100:.2f}%")
+            mech_col3.metric("Price-impact risk", mechanism_signal.price_impact_risk)
+            mech_col4.metric("Signal reliability", mechanism_signal.signal_reliability)
+
+            mech_col5, mech_col6, mech_col7, mech_col8 = st.columns(4)
+            mech_col5.metric("Flow context", mechanism_signal.flow_context)
+            mech_col6.metric("Intent label", mechanism_signal.intent_label)
+            mech_col7.metric("Evidence confidence", mechanism_signal.evidence_confidence)
+            mech_col8.metric("Volatility regime", mechanism_signal.volatility_regime)
+
+            with st.expander("Mechanism signal explanation", expanded=False):
+                st.write(mechanism_signal.reason)
+                st.write(mechanism_result.flow_context_note)
+                st.write(
+                    f"Pool source: {mechanism_pool.dex_id} on {mechanism_pool.chain_id} "
+                    f"({mechanism_pool.base_token_symbol}/{mechanism_pool.quote_token_symbol})."
+                )
+                st.write(f"Pair address: `{mechanism_pool.pair_address}`")
+                st.write(f"Pair URL: {mechanism_pool.pair_url}")
+
+    except sqlite3.OperationalError as exc:
+        st.warning(
+            "Mechanism signal unavailable because the real pool-depth table is missing or unreadable. "
+            f"Run the DEX pool-depth ingestion pipeline first. Details: {exc}"
+        )
+    except ValueError as exc:
+        st.warning(f"Mechanism signal unavailable: {exc}")
+    except Exception as exc:
+        st.error(f"Unexpected mechanism-signal failure: {exc}")
 
 
 # ==========================================

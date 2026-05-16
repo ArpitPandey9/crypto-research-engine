@@ -28,6 +28,13 @@ def _write_historical_prices(
     pd.DataFrame(rows).to_sql("historical_prices", conn, if_exists="replace", index=False)
 
 
+def _write_dex_pool_depths(
+    conn: sqlite3.Connection,
+    rows: list[dict],
+) -> None:
+    pd.DataFrame(rows).to_sql("dex_pool_depths", conn, if_exists="replace", index=False)
+
+
 def _seed_full_db(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -87,6 +94,44 @@ def _seed_full_db(db_path: Path) -> None:
             ],
         )
 
+        _write_dex_pool_depths(
+            conn,
+            [
+                {
+                    "id": 1,
+                    "fetched_at_utc": "2026-01-01T04:00:00+00:00",
+                    "asset_symbol": "ETH",
+                    "chain_id": "ethereum",
+                    "dex_id": "uniswap",
+                    "pair_address": "0xethpool",
+                    "base_token_symbol": "WETH",
+                    "quote_token_symbol": "USDC",
+                    "price_usd": 3300.0,
+                    "liquidity_usd": 100_000_000.0,
+                    "liquidity_base": 15_000.0,
+                    "liquidity_quote": 50_000_000.0,
+                    "volume_h24": 25_000_000.0,
+                    "pair_url": "https://dexscreener.com/ethereum/0xethpool",
+                },
+                {
+                    "id": 2,
+                    "fetched_at_utc": "2026-01-01T04:00:00+00:00",
+                    "asset_symbol": "WBTC",
+                    "chain_id": "ethereum",
+                    "dex_id": "curve",
+                    "pair_address": "0xwbtcpool",
+                    "base_token_symbol": "WBTC",
+                    "quote_token_symbol": "crvUSD",
+                    "price_usd": 61000.0,
+                    "liquidity_usd": 80_000_000.0,
+                    "liquidity_base": 500.0,
+                    "liquidity_quote": 40_000_000.0,
+                    "volume_h24": 5_000_000.0,
+                    "pair_url": "https://dexscreener.com/ethereum/0xwbtcpool",
+                },
+            ],
+        )
+
 
 @pytest.fixture
 def temp_app_project(tmp_path: Path) -> dict[str, Path]:
@@ -136,7 +181,9 @@ def test_app_renders_core_dashboard(temp_app_project: dict[str, Path]) -> None:
     assert len(at.caption) >= 1
 
     # Core controls exist
-    assert len(at.sidebar.selectbox) == 1
+    assert len(at.sidebar.selectbox) == 2
+    assert at.sidebar.selectbox[0].label == "Target asset"
+    assert at.sidebar.selectbox[1].label == "Volatility regime context"
     assert len(at.sidebar.slider) == 1
     assert len(at.sidebar.number_input) == 2
     assert len(at.sidebar.button) >= 2
@@ -146,6 +193,7 @@ def test_app_renders_core_dashboard(temp_app_project: dict[str, Path]) -> None:
     expected_subheaders = {
         "Data Freshness",
         "Research Summary",
+        "Mechanism Signal / Liquidity Context",
         "Equity Curve Comparison",
         "Rolling Whale Net Flow",
         "Hourly Whale USD Volume",
@@ -154,6 +202,24 @@ def test_app_renders_core_dashboard(temp_app_project: dict[str, Path]) -> None:
         "Signal Distribution",
     }
     assert expected_subheaders.issubset(subheaders)
+
+    # Mechanism panel renders from seeded real-style pool-depth rows.
+    metric_labels = {metric.label for metric in at.metric}
+    expected_mechanism_metrics = {
+        "Real pool depth",
+        "Size ratio",
+        "Price-impact risk",
+        "Signal reliability",
+        "Flow context",
+        "Intent label",
+        "Evidence confidence",
+        "Volatility regime",
+    }
+    assert expected_mechanism_metrics.issubset(metric_labels)
+
+    warning_messages = [warning.value for warning in at.warning]
+    assert not any("real pool-depth table is missing" in message for message in warning_messages)
+    assert not any("No fake pool-impact signal is generated" in message for message in warning_messages)
 
     # Tables render
     assert len(at.dataframe) >= 2
