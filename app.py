@@ -26,6 +26,7 @@ import pandas as pd
 import streamlit as st
 
 from src.analytics.real_mechanism_signal import build_real_mechanism_signal
+from src.analytics.volatility_regime import build_volatility_regime
 from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy
 
 
@@ -36,6 +37,11 @@ ROOT = Path(__file__).resolve().parent
 DB_PATH = ROOT / "data" / "db" / "whale_data.db"
 
 SUPPORTED_UI_ASSETS = ["ETH", "WBTC"]
+VOLATILITY_PRICE_ASSET_LOOKUP = {
+    "ETH": "ETH",
+    "WBTC": "BTC",
+}
+VOLATILITY_WINDOW_SIZE = 24
 CACHE_TTL_SECONDS = 300  # 5 minutes
 
 
@@ -231,6 +237,74 @@ if raw_prices_df.empty:
 
 
 # ==========================================
+# AUTOMATIC VOLATILITY REGIME DETECTION
+# ==========================================
+volatility_price_asset = VOLATILITY_PRICE_ASSET_LOOKUP.get(target_asset, target_asset)
+volatility_prices_df = raw_prices_df[
+    raw_prices_df["asset_type"].astype(str).str.upper() == volatility_price_asset
+][["timestamp", "price_usd"]].copy()
+
+try:
+    detected_volatility_result = build_volatility_regime(
+        prices=volatility_prices_df,
+        asset_symbol=volatility_price_asset,
+        window_size=VOLATILITY_WINDOW_SIZE,
+    )
+except ValueError as exc:
+    detected_volatility_result = None
+    detected_volatility_error = str(exc)
+else:
+    detected_volatility_error = None
+
+if detected_volatility_result is not None and detected_volatility_result.is_available:
+    effective_volatility_regime = detected_volatility_result.volatility_regime
+else:
+    effective_volatility_regime = volatility_regime
+
+
+# ==========================================
+# VOLATILITY REGIME PANEL
+# ==========================================
+st.subheader("Automatic Volatility Regime")
+
+if detected_volatility_result is not None and detected_volatility_result.is_available:
+    vol_col1, vol_col2, vol_col3, vol_col4 = st.columns(4)
+    vol_col1.metric("Detected volatility regime", detected_volatility_result.volatility_regime)
+    vol_col2.metric(
+        "Latest realized volatility",
+        f"{detected_volatility_result.latest_realized_volatility * 100:.2f}%",
+    )
+    vol_col3.metric(
+        "Normal threshold",
+        f"{detected_volatility_result.normal_threshold * 100:.2f}%",
+    )
+    vol_col4.metric(
+        "Extreme threshold",
+        f"{detected_volatility_result.extreme_threshold * 100:.2f}%",
+    )
+
+    with st.expander("Volatility regime methodology", expanded=False):
+        st.write(detected_volatility_result.reason)
+        st.write(
+            f"Price source asset: {volatility_price_asset}. "
+            f"Window size: {VOLATILITY_WINDOW_SIZE} price-return periods."
+        )
+        st.write(
+            "This regime is calculated from historical price returns and is used "
+            "as the market-weather input for the mechanism signal."
+        )
+else:
+    st.warning(
+        "Automatic volatility regime is unavailable. "
+        "The dashboard is using the manual volatility context as a fallback."
+    )
+    if detected_volatility_result is not None:
+        st.write(detected_volatility_result.reason)
+    elif detected_volatility_error is not None:
+        st.write(detected_volatility_error)
+
+
+# ==========================================
 # RUN STRATEGY
 # ==========================================
 try:
@@ -341,7 +415,7 @@ else:
         mechanism_result = build_real_mechanism_signal(
             asset_symbol=target_asset,
             whale_flow_usd=latest_rolling_flow,
-            volatility_regime=volatility_regime,
+            volatility_regime=effective_volatility_regime,
             db_path=DB_PATH,
         )
 
