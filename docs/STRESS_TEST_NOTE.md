@@ -141,4 +141,4 @@ The next high-value improvement is to make the whale-flow signal more defensible
 
 Target end state:
 
-> This is not just a dashboard. It is a small but real research system with a clear point of view..
+> This is not just a dashboard. It is a small but real research system with a clear point of view.
