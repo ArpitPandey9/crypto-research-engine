@@ -62,6 +62,7 @@ The project currently includes:
 - Automatic volatility-regime classifier
 - Dashboard mechanism-signal integration
 - Dashboard data audit script
+- Whale-flow stress-test research note
 - Streamlit dashboard
 - Unit tests
 - Integration tests
@@ -418,6 +419,12 @@ Current WBTC audit result:
 
 - No whale events found for target_asset=WBTC.
 - Audit stopped honestly instead of generating fake strategy numbers.
+
+---
+
+## Research Notes
+
+- [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
 
 ---
 
