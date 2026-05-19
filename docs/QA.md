@@ -377,3 +377,40 @@ Future upgrades may include:
 - risk scoring dashboard
 
 The goal is to make the project look like a serious crypto research system.
+
+---
+
+## 22. Latest Project Update — Current System State
+
+This section updates the older Q&A above with the latest project state.
+
+The project now uses three main external data sources:
+
+- Ethereum RPC: on-chain whale-transfer activity.
+- Binance API: ETH/BTC historical price data.
+- DEX Screener API: real DEX pool-depth / liquidity data.
+
+SQLite is not an external data source. SQLite is the local research vault where processed evidence is stored.
+
+Simple memory:
+
+- Ethereum tells us what moved.
+- Binance tells us what it was worth.
+- DEX Screener tells us whether liquidity can absorb it.
+- SQLite stores the evidence.
+
+The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, full pytest discovery in CI, 121 tests passing, and 90% coverage.
+
+Mechanism signal combines whale flow + pool depth + volatility regime.
+
+ETH audit result: dashboard numbers recomputed from SQLite + project formulas; automatic volatility is available; latest rolling whale-flow is zero, so no fake pool-impact signal is generated.
+
+WBTC audit result: no whale events found for target_asset=WBTC; audit stopped honestly instead of generating fake strategy numbers.
+
+Real-data rule: if real data is missing, show unavailable honestly instead of inventing a fake signal.
+
+Professional explanation:
+
+I built a crypto research engine that studies whether large on-chain whale transfers can become useful market-risk signals. It pulls whale-transfer data from Ethereum RPC, historical ETH/BTC prices from Binance, and real DEX liquidity data from DEX Screener. It stores processed data in SQLite, normalizes whale movement into USD flow, builds rolling whale-flow signals, adds liquidity and volatility context, backtests with transaction costs, and presents everything in a tested Streamlit dashboard.
+
+Important limitation: this project does not claim guaranteed buy/sell signals, confirmed whale intent, financial advice, or production trading readiness.
