@@ -59,19 +59,22 @@ The project currently includes:
 - Real DEX pool-depth repository access layer
 - Rolling net-flow strategy logic
 - Cost-aware vectorized backtesting
+- Automatic volatility-regime classifier
+- Dashboard mechanism-signal integration
+- Dashboard data audit script
 - Streamlit dashboard
 - Unit tests
 - Integration tests
 - Property-based tests
 - Streamlit app tests
-- GitHub Actions CI
+- Full pytest discovery in GitHub Actions CI
 - Coverage reporting
 
 Current test status:
 
 ```text
-114 tests passing
-91% total coverage
+121 tests passing
+90% total coverage
 GitHub Actions CI: green
 ```
 
@@ -389,9 +392,32 @@ coverage report -m
 Current local result:
 
 ```text
-114 passed
-91% total coverage
+121 passed
+90% total coverage
 ```
+
+---
+
+## Dashboard Data Audit
+
+The repository includes a local audit script that independently recomputes dashboard numbers from the SQLite database and project formulas.
+
+Audit command:
+
+`python scripts/audit_dashboard_data.py --target-asset ETH --window-hours 36 --min-flow-usd 10000 --cost-per-trade 0.0015 --manual-volatility-regime normal`
+
+Current ETH audit result:
+
+- Dashboard numbers are recomputed from SQLite + project formulas.
+- Automatic volatility regime is available.
+- Latest rolling whale-flow is zero, so no fake pool-impact signal is generated.
+
+If the local database has no real whale-event rows for an asset, the audit stops honestly instead of fabricating strategy numbers.
+
+Current WBTC audit result:
+
+- No whale events found for target_asset=WBTC.
+- Audit stopped honestly instead of generating fake strategy numbers.
 
 ---
 
@@ -442,6 +468,7 @@ Current limitations:
 - scans limited Ethereum data depending on the current script configuration
 - does not yet perform continuous historical block indexing
 - supports selected assets only
+- the local database may not contain whale-event rows for every supported UI asset
 - does not yet parse all event logs or internal DeFi contract flows
 - local SQLite database is not committed to GitHub
 - dashboard depends on locally generated database tables
