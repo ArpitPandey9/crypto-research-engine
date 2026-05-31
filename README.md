@@ -63,6 +63,9 @@ The project currently includes:
 - Dashboard mechanism-signal integration
 - Dashboard data audit script
 - Whale-flow stress-test research note
+- Outcome validation plan
+- Benchmark-adjusted abnormal-return validation helpers
+- Evidence-quality and failure-mode interpretation
 - Streamlit dashboard
 - Unit tests
 - Integration tests
@@ -74,7 +77,7 @@ The project currently includes:
 Current test status:
 
 ```text
-121 tests passing
+150 tests passing
 90% total coverage
 GitHub Actions CI: green
 ```
@@ -393,7 +396,7 @@ coverage report -m
 Current local result:
 
 ```text
-121 passed
+150 passed
 90% total coverage
 ```
 
@@ -424,7 +427,24 @@ Current WBTC audit result:
 
 ## Research Notes
 
+- [Outcome Validation Plan v1](docs/OUTCOME_VALIDATION_PLAN.md) defines how whale-flow classifications will be tested against +6h/+24h outcomes, BTC benchmark-adjusted abnormal returns, evidence quality, and failure-mode interpretation.
+
 - [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
+
+---
+
+## Outcome Validation Layer
+
+The project now includes a benchmark-adjusted outcome-validation layer.
+
+This layer compares whale-flow signal direction against +6h and +24h post-signal outcomes, adjusts asset movement against a BTC benchmark using abnormal return, and classifies the result with:
+
+- horizon-level labels
+- overall labels
+- evidence-quality labels
+- failure-mode interpretation
+
+This helps the system move from a plausible signal framework toward a more testable research framework.
 
 ---
 

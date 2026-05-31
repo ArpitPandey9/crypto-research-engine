@@ -399,7 +399,7 @@ Simple memory:
 - DEX Screener tells us whether liquidity can absorb it.
 - SQLite stores the evidence.
 
-The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, full pytest discovery in CI, 121 tests passing, and 90% coverage.
+The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 150 tests passing, and latest recorded 90% coverage.
 
 Mechanism signal combines whale flow + pool depth + volatility regime.
 
@@ -412,5 +412,7 @@ Real-data rule: if real data is missing, show unavailable honestly instead of in
 Professional explanation:
 
 I built a crypto research engine that studies whether large on-chain whale transfers can become useful market-risk signals. It pulls whale-transfer data from Ethereum RPC, historical ETH/BTC prices from Binance, and real DEX liquidity data from DEX Screener. It stores processed data in SQLite, normalizes whale movement into USD flow, builds rolling whale-flow signals, adds liquidity and volatility context, backtests with transaction costs, and presents everything in a tested Streamlit dashboard.
+
+The latest validation layer moves the project beyond a basic dashboard by comparing whale-flow classifications against +6h and +24h outcomes. It calculates actual return, BTC benchmark return, benchmark-adjusted abnormal return, horizon-level labels, overall labels, evidence quality, and failure-mode interpretation. This helps explain not only whether a signal worked or failed, but also whether the evidence was strong, mixed, weak, unavailable, short-lived, delayed, or unsupported.
 
 Important limitation: this project does not claim guaranteed buy/sell signals, confirmed whale intent, financial advice, or production trading readiness.
