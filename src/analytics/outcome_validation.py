@@ -107,3 +107,69 @@ def summarize_overall_label(label_6h: str, label_24h: str) -> str:
         return "delayed_reaction"
 
     return "inconclusive"
+
+def classify_evidence_quality(label_6h: str, label_24h: str) -> str:
+    """Classify how reliable the combined 6h/24h evidence is.
+
+    strong:
+        both horizons agree clearly as worked or failed
+
+    mixed:
+        one horizon worked and the other failed
+
+    weak:
+        at least one horizon is inconclusive
+
+    unavailable:
+        at least one horizon has missing data
+    """
+    if label_6h not in VALID_HORIZON_LABELS:
+        raise ValueError("label_6h is not a valid horizon label.")
+
+    if label_24h not in VALID_HORIZON_LABELS:
+        raise ValueError("label_24h is not a valid horizon label.")
+
+    labels = {label_6h, label_24h}
+
+    if "data_unavailable" in labels:
+        return "unavailable"
+
+    if "inconclusive" in labels:
+        return "weak"
+
+    if label_6h == label_24h:
+        return "strong"
+
+    return "mixed"
+
+
+def classify_failure_mode(label_6h: str, label_24h: str) -> str:
+    """Explain the likely outcome pattern behind the final label.
+
+    This does not claim causality. It only describes how the 6h and 24h
+    evidence behaved relative to the signal.
+    """
+    if label_6h not in VALID_HORIZON_LABELS:
+        raise ValueError("label_6h is not a valid horizon label.")
+
+    if label_24h not in VALID_HORIZON_LABELS:
+        raise ValueError("label_24h is not a valid horizon label.")
+
+    labels = {label_6h, label_24h}
+
+    if "data_unavailable" in labels:
+        return "data_unavailable"
+
+    if label_6h == "worked" and label_24h == "worked":
+        return "no_failure"
+
+    if label_6h == "failed" and label_24h == "failed":
+        return "unsupported_signal"
+
+    if label_6h == "worked" and label_24h == "failed":
+        return "short_lived_reaction"
+
+    if label_6h == "failed" and label_24h == "worked":
+        return "delayed_reaction"
+
+    return "inconclusive_evidence"
