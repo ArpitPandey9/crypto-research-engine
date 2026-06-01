@@ -77,7 +77,7 @@ The project currently includes:
 Current test status:
 
 ```text
-150 tests passing
+156 tests passing
 90% total coverage
 GitHub Actions CI: green
 ```
@@ -396,7 +396,7 @@ coverage report -m
 Current local result:
 
 ```text
-150 passed
+156 passed
 90% total coverage
 ```
 
@@ -428,6 +428,7 @@ Current WBTC audit result:
 ## Research Notes
 
 - [Outcome Validation Plan v1](docs/OUTCOME_VALIDATION_PLAN.md) defines how whale-flow classifications will be tested against +6h/+24h outcomes, BTC benchmark-adjusted abnormal returns, evidence quality, and failure-mode interpretation.
+- [Outcome Validation Result Note v1](docs/OUTCOME_VALIDATION_RESULT_NOTE.md) records the first real ETH validation sample, where a positive whale-flow signal failed after BTC benchmark adjustment and was classified as strong evidence with an unsupported_signal failure mode.
 
 - [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
 
@@ -445,6 +446,30 @@ This layer compares whale-flow signal direction against +6h and +24h post-signal
 - failure-mode interpretation
 
 This helps the system move from a plausible signal framework toward a more testable research framework.
+
+---
+
+## Outcome Validation Runner
+
+Run the real SQLite-based outcome-validation summary:
+
+```bash
+python scripts/run_outcome_validation.py --target-asset ETH --benchmark-asset BTC --window-hours 12 --min-flow-usd 0
+```
+
+Latest recorded ETH sample result:
+
+- signal direction: positive
+- +6h abnormal return: -0.1946%
+- +6h label: failed
+- +24h abnormal return: -0.0977%
+- +24h label: failed
+- overall label: failed
+- evidence quality: strong
+- failure mode: unsupported_signal
+
+This means the first real ETH whale-flow sample was not supported after BTC benchmark adjustment. The project records this honestly as research evidence, not as a guaranteed prediction.
+
 
 ---
 

@@ -399,7 +399,7 @@ Simple memory:
 - DEX Screener tells us whether liquidity can absorb it.
 - SQLite stores the evidence.
 
-The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 150 tests passing, and latest recorded 90% coverage.
+The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 156 tests passing, and latest recorded 90% coverage.
 
 Mechanism signal combines whale flow + pool depth + volatility regime.
 
@@ -416,3 +416,31 @@ I built a crypto research engine that studies whether large on-chain whale trans
 The latest validation layer moves the project beyond a basic dashboard by comparing whale-flow classifications against +6h and +24h outcomes. It calculates actual return, BTC benchmark return, benchmark-adjusted abnormal return, horizon-level labels, overall labels, evidence quality, and failure-mode interpretation. This helps explain not only whether a signal worked or failed, but also whether the evidence was strong, mixed, weak, unavailable, short-lived, delayed, or unsupported.
 
 Important limitation: this project does not claim guaranteed buy/sell signals, confirmed whale intent, financial advice, or production trading readiness.
+
+---
+
+## Outcome validation runner result
+
+The project now includes `scripts/run_outcome_validation.py`, which loads real SQLite whale-event and historical-price data, builds a benchmark-adjusted outcome-validation table, and prints a concise research summary.
+
+Latest recorded ETH sample:
+
+- rolling net flow: $1,899,322.81
+- signal direction: positive
+- +6h actual return: 0.7344%
+- +6h BTC benchmark return: 0.9290%
+- +6h abnormal return: -0.1946%
+- +6h label: failed
+- +24h actual return: -0.2621%
+- +24h BTC benchmark return: -0.1644%
+- +24h abnormal return: -0.0977%
+- +24h label: failed
+- overall label: failed
+- evidence quality: strong
+- failure mode: unsupported_signal
+
+Professional explanation:
+
+The first real ETH validation sample shows that a positive whale-flow signal was not supported after BTC benchmark-adjustment. At +6h, ETH was positive in raw return terms, but BTC performed better, so ETH underperformed after benchmark adjustment. At +24h, ETH also underperformed BTC. Because both horizons failed, the evidence quality is strong, but it is strong evidence against the signal. The correct failure mode is unsupported_signal.
+
+This is a good research outcome because the project does not force the signal to look successful. It tests the signal honestly and records where the framework breaks.
