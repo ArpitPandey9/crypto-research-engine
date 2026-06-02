@@ -2,7 +2,7 @@
 
 This file is my interview memory and proof of understanding.
 
-The purpose of this document is to help me explain the project clearly in interviews, mentor reviews, and technical discussions.
+The purpose of this document is to help me explain the project clearly in interviews, professional reviews, and technical discussions.
 
 ---
 

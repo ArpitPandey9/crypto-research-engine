@@ -429,6 +429,7 @@ Current WBTC audit result:
 
 - [Outcome Validation Plan v1](docs/OUTCOME_VALIDATION_PLAN.md) defines how whale-flow classifications will be tested against +6h/+24h outcomes, BTC benchmark-adjusted abnormal returns, evidence quality, and failure-mode interpretation.
 - [Outcome Validation Result Note v1](docs/OUTCOME_VALIDATION_RESULT_NOTE.md) records the first real ETH validation sample, where a positive whale-flow signal failed after BTC benchmark adjustment and was classified as strong evidence with an unsupported_signal failure mode.
+- [Outcome Validation Research Note v1](docs/OUTCOME_VALIDATION_RESEARCH_NOTE.md) summarizes the first validation result as a short research note with hypothesis, signal tested, result, interpretation, limitations, and next improvement.
 
 - [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
 
