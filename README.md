@@ -158,6 +158,7 @@ crypto-research-engine/
 │   ├── OUTCOME_VALIDATION_PLAN.md
 │   ├── OUTCOME_VALIDATION_RESULT_NOTE.md
 │   ├── OUTCOME_VALIDATION_RESEARCH_NOTE.md
+│   ├── OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md
 │   ├── STRESS_TEST_NOTE.md
 │   └── whale_flow_mechanism_layer.md
 ├── src/
@@ -585,6 +586,7 @@ Current WBTC audit result:
 * [Outcome Validation Plan v1](docs/OUTCOME_VALIDATION_PLAN.md) defines how whale-flow classifications will be tested against +6h/+24h outcomes, BTC benchmark-adjusted abnormal returns, evidence quality, and failure-mode interpretation.
 * [Outcome Validation Result Note v1](docs/OUTCOME_VALIDATION_RESULT_NOTE.md) records the first real ETH validation sample, where a positive whale-flow signal failed after BTC benchmark adjustment and was classified as strong evidence with an unsupported_signal failure mode.
 * [Outcome Validation Research Note v1](docs/OUTCOME_VALIDATION_RESEARCH_NOTE.md) summarizes the first validation result as a short research note with hypothesis, signal tested, result, interpretation, limitations, and next improvement.
+* [Outcome Validation Research Note V2](docs/OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md) summarizes the first small outcome-validation dataset: 11 stored records, 10 testable records, 1 worked signal, 7 failed signals, 2 short-lived reversal cases, and a 10.00% support rate.
 * [Outcome Validation Dataset Engine V2](docs/OUTCOME_VALIDATION_DATASET_ENGINE_V2.md) defines the persistent SQLite dataset layer for storing validated whale-flow outcomes across multiple events.
 * [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
 
@@ -690,8 +692,9 @@ Current limitations:
 * does not yet parse all event logs or internal DeFi contract flows
 * local SQLite database is not committed to GitHub
 * dashboard depends on locally generated database tables
-* current V2 dataset contains one persisted validation record
-* signal reliability analysis still requires more validated observations
+* local SQLite outcome-validation records are not committed to GitHub
+* latest local V2 research run reached 11 stored records and 10 testable records, summarized in Outcome Validation Research Note V2
+* signal reliability analysis still requires event-time liquidity and volatility context
 * liquidity is not yet attached to every outcome-validation record
 * signals are research signals, not financial advice
 
@@ -701,11 +704,11 @@ Current limitations:
 
 Near-term improvements:
 
-* expand the outcome-validation dataset from 1 record to 10+ real validated records
+* attach event-time liquidity context to validation records when available
 * analyze support rate by volatility regime
 * analyze support rate by liquidity context
-* attach event-time liquidity context to validation records when available
-* generate Outcome Validation Research Note v2 after enough real observations exist
+* test whether short-lived reactions are linked to liquidity, volatility, or benchmark outperformance
+* continue avoiding feature drift
 * keep improving protocol-level understanding through Solidity and Foundry
 * continue avoiding feature drift
 
