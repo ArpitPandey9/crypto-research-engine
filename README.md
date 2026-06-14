@@ -78,6 +78,8 @@ The project currently includes:
 * Evidence-quality and failure-mode interpretation
 * Outcome Validation Dataset Engine V2
 * Persistent `outcome_validation_records` SQLite dataset table
+* Historical Ethereum block backfill script
+* Outcome Validation Research Note V2
 * Streamlit dashboard
 * Unit tests
 * Integration tests
@@ -182,9 +184,11 @@ crypto-research-engine/
 │       └── whale_signals.py
 ├── scripts/
 │   ├── audit_dashboard_data.py
+│   ├── backfill_whale_blocks.py
 │   └── run_outcome_validation.py
 └── tests/
     ├── test_app_streamlit.py
+    ├── test_backfill_whale_blocks.py
     ├── test_run_whale_signals_integration.py
     ├── test_run_whale_signals_unit.py
     ├── test_whale_signals.py
@@ -621,7 +625,7 @@ Persist validation rows into the reusable SQLite dataset:
 python scripts/run_outcome_validation.py --target-asset ETH --benchmark-asset BTC --window-hours 12 --min-flow-usd 0 --save-dataset --validation-notes "Initial V2 dataset persistence run"
 ```
 
-Latest recorded ETH sample result:
+First recorded ETH sample result (v1):
 
 * signal direction: positive
 * rolling net whale flow: $1,899,322.81
@@ -638,6 +642,19 @@ Latest recorded ETH sample result:
 This means the first real ETH whale-flow sample was not supported after BTC benchmark adjustment.
 
 The project records this honestly as research evidence, not as a guaranteed prediction.
+
+V2 dataset summary:
+
+* stored validation records: 11
+* testable records: 10
+* worked: 1
+* failed: 7
+* reversal / short-lived reaction: 2
+* data unavailable: 1
+* support rate: 10.00%
+
+This means the first small ETH positive whale-flow dataset does not support a simple claim that whale-flow reliably predicts durable BTC-adjusted outperformance.
+
 
 ---
 
@@ -710,7 +727,6 @@ Near-term improvements:
 * test whether short-lived reactions are linked to liquidity, volatility, or benchmark outperformance
 * continue avoiding feature drift
 * keep improving protocol-level understanding through Solidity and Foundry
-* continue avoiding feature drift
 
 Future research extensions:
 
