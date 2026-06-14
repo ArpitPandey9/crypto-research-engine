@@ -27,31 +27,41 @@ This engine follows four rules:
 
 ## Validation Record Fields
 
-Each validated signal should store:
+The current V2 SQLite dataset stores:
 
-- event_id
-- asset
-- signal_timestamp
-- signal_direction
-- rolling_net_flow_usd
-- min_flow_usd
-- window_hours
-- volatility_regime
-- liquidity_context
-- size_ratio
+- record_key
+- event_timestamp
+- target_asset
+- target_price_asset
 - benchmark_asset
-- asset_return_6h
+- signal
+- signal_direction
+- rolling_net_flow
+- event_asset_price
+- actual_return_6h
 - benchmark_return_6h
 - abnormal_return_6h
-- asset_return_24h
+- label_6h
+- actual_return_24h
 - benchmark_return_24h
 - abnormal_return_24h
-- outcome_label
+- label_24h
+- overall_label
 - evidence_quality
 - failure_mode
+- window_hours
+- min_flow_usd
 - data_quality_status
 - validation_notes
 - created_at
+
+Future extensions may attach event-time market context such as:
+
+- volatility_regime
+- liquidity_context
+- size_ratio
+
+Those fields should only be added when they can be derived from real, event-time aligned data.
 
 ## Outcome Labels
 

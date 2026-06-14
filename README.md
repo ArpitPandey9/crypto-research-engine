@@ -89,7 +89,7 @@ The project currently includes:
 Current test status:
 
 ```text
-162 tests passing
+170 tests passing
 90% total coverage
 GitHub Actions CI: green
 ```
@@ -504,19 +504,25 @@ python -m src.data.update_dex_pool_depths
 python -m src.strategies.run_whale_signals
 ```
 
-### 5. Run outcome validation
+### 5. Backfill historical Ethereum blocks
+
+```bash
+python scripts/backfill_whale_blocks.py --latest-blocks 100 --min-usd-value 100000 --sleep-seconds 0.1
+```
+
+### 6. Run outcome validation
 
 ```bash
 python scripts/run_outcome_validation.py --target-asset ETH --benchmark-asset BTC --window-hours 12 --min-flow-usd 0
 ```
 
-### 6. Persist outcome-validation records
+### 7. Persist outcome-validation records
 
 ```bash
 python scripts/run_outcome_validation.py --target-asset ETH --benchmark-asset BTC --window-hours 12 --min-flow-usd 0 --save-dataset --validation-notes "Initial V2 dataset persistence run"
 ```
 
-### 7. Launch dashboard
+### 8. Launch dashboard
 
 ```bash
 streamlit run app.py
@@ -543,7 +549,7 @@ coverage report
 Current local result:
 
 ```text
-162 passed
+170 passed
 90% total coverage
 ```
 
