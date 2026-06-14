@@ -2,7 +2,8 @@
 
 This script loads real enriched whale events and historical prices from SQLite,
 builds the outcome-validation table, prints a concise terminal summary, and can
-optionally export the table to CSV.
+optionally export the table to CSV or persist the results into a reusable
+outcome-validation dataset.
 
 It does not claim prediction.
 It validates whether whale-flow signals were supported, failed, delayed,
@@ -23,6 +24,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from src.analytics.outcome_validation_dataset import (
+    build_outcome_validation_dataset_summary,
+    load_outcome_validation_records,
+    save_outcome_validation_records,
+)
 from src.analytics.outcome_validation_table import build_outcome_validation_table
 
 
@@ -95,6 +101,19 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional CSV path for exporting the validation table.",
     )
+    parser.add_argument(
+        "--save-dataset",
+        action="store_true",
+        help=(
+            "Persist validation rows into the outcome_validation_records "
+            "SQLite dataset table."
+        ),
+    )
+    parser.add_argument(
+        "--validation-notes",
+        default="",
+        help="Optional note stored with persisted validation records.",
+    )
 
     return parser.parse_args()
 
@@ -122,6 +141,17 @@ def _format_usd(value) -> str:
         return "unavailable"
 
     return f"${float(value):,.2f}"
+
+
+def _format_summary_value(key: str, value) -> str:
+    """Format dataset summary values for terminal display."""
+    if key == "support_rate" and value is not None:
+        return f"{value:.2%}"
+
+    if isinstance(value, float) and value == value:
+        return f"{value:.6f}"
+
+    return str(value)
 
 
 def print_validation_summary(validation_df: pd.DataFrame) -> None:
@@ -164,6 +194,16 @@ def print_validation_summary(validation_df: pd.DataFrame) -> None:
     print(
         "- The result is research evidence, not financial advice or guaranteed prediction."
     )
+
+
+def print_dataset_summary(db_path: Path) -> None:
+    """Print summary statistics for stored outcome-validation records."""
+    records_df = load_outcome_validation_records(db_path)
+    dataset_summary = build_outcome_validation_dataset_summary(records_df)
+
+    print("\nOutcome validation dataset summary:")
+    for key, value in dataset_summary.items():
+        print(f"- {key}: {_format_summary_value(key, value)}")
 
 
 def main() -> int:
@@ -220,6 +260,20 @@ def main() -> int:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         validation_df.to_csv(output_path, index=False)
         print(f"\n[*] Exported validation table to: {output_path}")
+
+    if args.save_dataset:
+        saved_count = save_outcome_validation_records(
+            db_path=db_path,
+            validation_df=validation_df,
+            window_hours=args.window_hours,
+            min_flow_usd=args.min_flow_usd,
+            validation_notes=args.validation_notes,
+        )
+        print(
+            "\n[*] Saved "
+            f"{saved_count} validation record(s) to outcome_validation_records."
+        )
+        print_dataset_summary(db_path)
 
     return 0
 

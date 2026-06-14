@@ -399,7 +399,7 @@ Simple memory:
 - DEX Screener tells us whether liquidity can absorb it.
 - SQLite stores the evidence.
 
-The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 156 tests passing, and latest recorded 90% coverage.
+The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, outcome-validation dataset engine, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 162 tests passing, and latest recorded 90% coverage.
 
 Mechanism signal combines whale flow + pool depth + volatility regime.
 
@@ -421,7 +421,7 @@ Important limitation: this project does not claim guaranteed buy/sell signals, c
 
 ## Outcome validation runner result
 
-The project now includes `scripts/run_outcome_validation.py`, which loads real SQLite whale-event and historical-price data, builds a benchmark-adjusted outcome-validation table, and prints a concise research summary.
+The project now includes `scripts/run_outcome_validation.py`, which loads real SQLite whale-event and historical-price data, builds a benchmark-adjusted outcome-validation table, prints a concise research summary, and can persist validated rows into the reusable `outcome_validation_records` SQLite dataset table.
 
 Latest recorded ETH sample:
 
