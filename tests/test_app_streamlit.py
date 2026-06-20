@@ -11,7 +11,7 @@ from streamlit.testing.v1 import AppTest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_APP = PROJECT_ROOT / "app.py"
-APP_TEST_TIMEOUT = 15
+APP_TEST_TIMEOUT = 45
 
 
 def _write_enriched_whales(

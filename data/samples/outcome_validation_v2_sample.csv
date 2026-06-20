@@ -1,0 +1,12 @@
+event_timestamp,target_asset,benchmark_asset,signal_direction,rolling_net_flow,abnormal_return_6h,abnormal_return_24h,overall_label,evidence_quality,failure_mode,data_quality_status,validation_notes
+2026-04-23 09:00:00+00:00,ETH,BTC,positive,1899322.808225275,-0.0019462574917976545,-0.0009768132598068735,failed,strong,unsupported_signal,available,Initial V2 dataset persistence run
+2026-06-03 22:00:00+00:00,ETH,BTC,positive,134431.5,-0.004951284806411563,-0.014811993314841627,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-03 23:00:00+00:00,ETH,BTC,positive,67831516.64277638,-0.013069893116254967,-0.019316873639687218,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-06 01:00:00+00:00,ETH,BTC,positive,22964368.71023843,-0.004181426499873079,-0.002495429811866752,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-08 03:00:00+00:00,ETH,BTC,positive,38536947.95583296,-0.011194230389220246,-0.002253144892369714,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-08 04:00:00+00:00,ETH,BTC,positive,64561691.18576621,0.0014592512522103931,0.008784307010233545,worked,strong,no_failure,available,Older block range 25240000-25240200 validation run
+2026-06-10 05:00:00+00:00,ETH,BTC,positive,29682024.886386026,0.00045404184777148547,-0.008091604137493175,reversal,mixed,short_lived_reaction,available,Older block range 25240000-25240200 validation run
+2026-06-10 06:00:00+00:00,ETH,BTC,positive,40270436.18464576,0.000551934584805175,-0.007199915030865322,reversal,mixed,short_lived_reaction,available,Older block range 25240000-25240200 validation run
+2026-06-12 07:00:00+00:00,ETH,BTC,positive,9536427.948117744,-0.004752673302811066,-0.0032302713312640802,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-12 08:00:00+00:00,ETH,BTC,positive,34814513.663454235,-0.0011011745510913634,-0.004659569372235577,failed,strong,unsupported_signal,available,Older block range 25240000-25240200 validation run
+2026-06-14 13:00:00+00:00,ETH,BTC,positive,2034412.8398366193,,,data_unavailable,unavailable,data_unavailable,data_unavailable,Older block range 25240000-25240200 validation run
