@@ -91,8 +91,8 @@ The project currently includes:
 Current test status:
 
 ```text
-170 tests passing
-90% total coverage
+187 tests passing
+91% total coverage
 GitHub Actions CI: green
 ```
 
@@ -554,8 +554,8 @@ coverage report
 Current local result:
 
 ```text
-170 passed
-90% total coverage
+187 passed
+91% total coverage
 ```
 
 ---
@@ -713,8 +713,8 @@ Current limitations:
 * dashboard depends on locally generated database tables
 * local SQLite outcome-validation records are not committed to GitHub
 * latest local V2 research run reached 11 stored records and 10 testable records, summarized in Outcome Validation Research Note V2
-* signal reliability analysis still requires event-time liquidity and volatility context
-* liquidity is not yet attached to every outcome-validation record
+* event-time volatility context is attached to validation records in V3
+* current V3 liquidity context is mostly stale, so flow-to-liquidity impact claims remain unavailable until historical liquidity backfill or a transparent liquidity proxy is added
 * signals are research signals, not financial advice
 
 ---
@@ -723,9 +723,9 @@ Current limitations:
 
 Near-term improvements:
 
-* attach event-time liquidity context to validation records when available
-* analyze support rate by volatility regime
-* analyze support rate by liquidity context
+* add historical liquidity backfill or a transparent event-time liquidity proxy
+* analyze support rate by volatility regime using V3 event-time context
+* analyze support rate by fresh liquidity context once reliable event-time liquidity exists
 * test whether short-lived reactions are linked to liquidity, volatility, or benchmark outperformance
 * continue avoiding feature drift
 * keep improving protocol-level understanding through Solidity and Foundry

@@ -382,65 +382,145 @@ The goal is to make the project look like a serious crypto research system.
 
 ## 22. Latest Project Update — Current System State
 
-This section updates the older Q&A above with the latest project state.
+The project has now moved beyond a basic whale-flow dashboard.
 
-The project now uses three main external data sources:
+The current system includes:
 
-- Ethereum RPC: on-chain whale-transfer activity.
-- Binance API: ETH/BTC historical price data.
-- DEX Screener API: real DEX pool-depth / liquidity data.
+- real on-chain whale-transfer ingestion
+- local SQLite research storage
+- historical ETH/BTC price data
+- USD normalization
+- rolling whale-flow signal generation
+- BTC benchmark-adjusted outcome validation
+- persistent outcome-validation records
+- public V2 results and sample CSV
+- event-time market context V3
+- tested Streamlit dashboard
+- 187 local tests passing with 91% total coverage
 
-SQLite is not an external data source. SQLite is the local research vault where processed evidence is stored.
+## 23. What is outcome validation?
 
-Simple memory:
+Outcome validation checks whether a whale-flow signal actually worked after the signal appeared.
 
-- Ethereum tells us what moved.
-- Binance tells us what it was worth.
-- DEX Screener tells us whether liquidity can absorb it.
-- SQLite stores the evidence.
+The project does not only ask:
 
-The latest project now includes DEX pool-depth ingestion, dex_pool_depths table, mechanism signal, automatic volatility-regime classifier, dashboard data audit script, outcome validation plan, outcome-validation dataset engine, historical block backfill script, Outcome Validation Research Note V2, benchmark-adjusted abnormal-return helpers, evidence-quality classification, failure-mode interpretation, full pytest discovery in CI, 170 tests passing, and latest recorded 90% coverage.
+“Did ETH go up?”
 
-Mechanism signal combines whale flow + pool depth + volatility regime.
+It asks:
 
-ETH audit result: dashboard numbers recomputed from SQLite + project formulas; automatic volatility is available; latest rolling whale-flow is zero, so no fake pool-impact signal is generated.
+“Did ETH outperform BTC after the whale-flow signal?”
 
-WBTC audit result: no whale events found for target_asset=WBTC; audit stopped honestly instead of generating fake strategy numbers.
+That matters because BTC often moves the whole crypto market. If ETH rises only because BTC rises, the whale-flow signal may not be truly useful.
 
-Real-data rule: if real data is missing, show unavailable honestly instead of inventing a fake signal.
+## 24. Why use BTC benchmark adjustment?
 
-Professional explanation:
+BTC is used as the broad crypto-market benchmark.
 
-I built a crypto research engine that studies whether large on-chain whale transfers can become useful market-risk signals. It pulls whale-transfer data from Ethereum RPC, historical ETH/BTC prices from Binance, and real DEX liquidity data from DEX Screener. It stores processed data in SQLite, normalizes whale movement into USD flow, builds rolling whale-flow signals, adds liquidity and volatility context, backtests with transaction costs, and presents everything in a tested Streamlit dashboard.
+The project calculates abnormal return:
 
-The latest validation layer moves the project beyond a basic dashboard by comparing whale-flow classifications against +6h and +24h outcomes. It calculates actual return, BTC benchmark return, benchmark-adjusted abnormal return, horizon-level labels, overall labels, evidence quality, and failure-mode interpretation. This helps explain not only whether a signal worked or failed, but also whether the evidence was strong, mixed, weak, unavailable, short-lived, delayed, or unsupported.
+ETH return minus BTC return.
 
-Important limitation: this project does not claim guaranteed buy/sell signals, confirmed whale intent, financial advice, or production trading readiness.
+This helps separate asset-specific signal behavior from general market movement.
 
----
+Example:
 
-## Outcome validation runner result
+If ETH rises 1.0% and BTC rises 0.8%, ETH only outperformed BTC by 0.2%.
 
-The project now includes `scripts/run_outcome_validation.py`, which loads real SQLite whale-event and historical-price data, builds a benchmark-adjusted outcome-validation table, prints a concise research summary, and can persist validated rows into the reusable `outcome_validation_records` SQLite dataset table.
+That 0.2% is the benchmark-adjusted abnormal return.
 
-Latest recorded ETH sample:
+## 25. What did the V2 validation result show?
 
-- rolling net flow: $1,899,322.81
-- signal direction: positive
-- +6h actual return: 0.7344%
-- +6h BTC benchmark return: 0.9290%
-- +6h abnormal return: -0.1946%
-- +6h label: failed
-- +24h actual return: -0.2621%
-- +24h BTC benchmark return: -0.1644%
-- +24h abnormal return: -0.0977%
-- +24h label: failed
-- overall label: failed
-- evidence quality: strong
-- failure mode: unsupported_signal
+The V2 sample contains 11 stored outcome-validation records.
 
-Professional explanation:
+10 records are testable and 1 record is data_unavailable.
 
-The first real ETH validation sample shows that a positive whale-flow signal was not supported after BTC benchmark-adjustment. At +6h, ETH was positive in raw return terms, but BTC performed better, so ETH underperformed after benchmark adjustment. At +24h, ETH also underperformed BTC. Because both horizons failed, the evidence quality is strong, but it is strong evidence against the signal. The correct failure mode is unsupported_signal.
+The result is:
 
-This is a good research outcome because the project does not force the signal to look successful. It tests the signal honestly and records where the framework breaks.
+- 1 worked signal
+- 7 failed signals
+- 2 short-lived reversal signals
+- 1 data_unavailable record
+- 10.00% support rate
+
+This means the current sample does not support a simple claim that positive ETH whale-flow reliably predicts durable BTC-adjusted outperformance.
+
+## 26. What is Event-Time Market Context V3?
+
+Event-Time Market Context V3 adds market conditions around each validated whale-flow event.
+
+It asks:
+
+“What did the market look like at the time of the signal?”
+
+The two main context layers are:
+
+- volatility context
+- liquidity context
+
+Volatility is like market weather.
+
+Liquidity is like the market wall that absorbs or fails to absorb large flow.
+
+## 27. Why is stale liquidity not used for flow-to-liquidity ratio?
+
+The project does not use stale liquidity snapshots to calculate flow-to-liquidity ratio.
+
+This is intentional.
+
+A liquidity snapshot from many days before the event may not represent the real liquidity available at the event time.
+
+Using that stale number as if it were fresh would make the project misleading.
+
+So the project marks liquidity as stale and leaves flow_to_liquidity_ratio blank.
+
+That is more honest than inventing a false precision number.
+
+## 28. What did V3 show?
+
+The V3 sample contains 11 event-time context rows.
+
+The current context result is:
+
+- 9 volatility_only_context rows
+- 1 context_unavailable row
+- 1 liquidity_unavailable_context row
+
+This means volatility context is available for most records, but liquidity is stale or unavailable.
+
+Therefore, the project can discuss volatility-context interpretation, but it cannot yet make strong liquidity-impact claims.
+
+## 29. What do the V3 tests prove?
+
+The V3 tests prove that the new context layer follows the honesty rules.
+
+They check that:
+
+- future liquidity snapshots are not used
+- stale liquidity does not produce a flow-to-liquidity ratio
+- missing data returns unavailable context
+- invalid timestamps fail honestly
+- invalid price/liquidity values fail honestly
+- fresh liquidity can produce a valid ratio
+- fragile market context is detected only when both volatility and liquidity conditions support it
+
+The tests do not prove that whale-flow is predictive.
+
+They prove that the research pipeline handles data and assumptions correctly.
+
+## 30. How would I explain V3 in an interview?
+
+I would say:
+
+“After validating whether whale-flow signals worked against a BTC benchmark, I added an event-time context layer. This layer checks the volatility and liquidity conditions around each signal using only data available at or before the event time. If liquidity is stale, the system does not calculate a flow-to-liquidity ratio. This keeps the research honest and avoids false precision. The current V3 result shows that volatility context is available for most records, but liquidity context is not fresh enough yet to support strong impact-ratio conclusions.”
+
+## 31. What is the next research improvement?
+
+The next research improvement is historical liquidity backfill or a transparent liquidity proxy.
+
+The reason is simple:
+
+The project can already validate whale-flow outcomes and classify volatility context.
+
+But to make stronger liquidity-impact claims, the system needs fresher event-time liquidity data.
+
+Until then, stale liquidity is reported honestly as a limitation.
