@@ -1,0 +1,10 @@
+group_name,group_value,total_records,worked_count,failed_count,reversal_count,data_unavailable_count,support_rate,failure_rate,reversal_rate,dominant_outcome,interpretation
+context_bucket,context_unavailable,1,0,1,0,0,0.0,1.0,0.0,failed,"context_bucket=context_unavailable: 1 record(s), 0 worked, 1 failed, 0 reversal, 0 data_unavailable. Dominant outcome: failed."
+context_bucket,liquidity_unavailable_context,1,0,0,0,1,0.0,0.0,0.0,data_unavailable,"context_bucket=liquidity_unavailable_context: 1 record(s), 0 worked, 0 failed, 0 reversal, 1 data_unavailable. Dominant outcome: data_unavailable."
+context_bucket,volatility_only_context,9,1,6,2,0,0.1111111111111111,0.6666666666666666,0.2222222222222222,failed,"context_bucket=volatility_only_context: 9 record(s), 1 worked, 6 failed, 2 reversal, 0 data_unavailable. Dominant outcome: failed."
+event_volatility_regime,elevated,2,0,0,2,0,0.0,0.0,1.0,reversal,"event_volatility_regime=elevated: 2 record(s), 0 worked, 0 failed, 2 reversal, 0 data_unavailable. Dominant outcome: reversal."
+event_volatility_regime,extreme,7,1,6,0,0,0.14285714285714285,0.8571428571428571,0.0,failed,"event_volatility_regime=extreme: 7 record(s), 1 worked, 6 failed, 0 reversal, 0 data_unavailable. Dominant outcome: failed."
+event_volatility_regime,normal,1,0,0,0,1,0.0,0.0,0.0,data_unavailable,"event_volatility_regime=normal: 1 record(s), 0 worked, 0 failed, 0 reversal, 1 data_unavailable. Dominant outcome: data_unavailable."
+event_volatility_regime,unavailable,1,0,1,0,0,0.0,1.0,0.0,failed,"event_volatility_regime=unavailable: 1 record(s), 0 worked, 1 failed, 0 reversal, 0 data_unavailable. Dominant outcome: failed."
+event_liquidity_status,stale,10,1,6,2,1,0.1,0.6,0.2,failed,"event_liquidity_status=stale: 10 record(s), 1 worked, 6 failed, 2 reversal, 1 data_unavailable. Dominant outcome: failed."
+event_liquidity_status,unavailable,1,0,1,0,0,0.0,1.0,0.0,failed,"event_liquidity_status=unavailable: 1 record(s), 0 worked, 1 failed, 0 reversal, 0 data_unavailable. Dominant outcome: failed."

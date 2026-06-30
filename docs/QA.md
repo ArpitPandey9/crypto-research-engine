@@ -396,7 +396,7 @@ The current system includes:
 - public V2 results and sample CSV
 - event-time market context V3
 - tested Streamlit dashboard
-- 187 local tests passing with 91% total coverage
+- 193 local tests passing with 91% total coverage
 
 ## 23. What is outcome validation?
 
@@ -524,3 +524,39 @@ The project can already validate whale-flow outcomes and classify volatility con
 But to make stronger liquidity-impact claims, the system needs fresher event-time liquidity data.
 
 Until then, stale liquidity is reported honestly as a limitation.
+
+## 31. What is Context-Conditioned Outcome Analysis V4?
+
+Context-Conditioned Outcome Analysis V4 summarizes validated whale-flow outcomes by event-time market context.
+
+V2 answered whether the signal worked, failed, reversed, or became unavailable after BTC benchmark adjustment.
+
+V3 attached event-time volatility and liquidity context to each validated record.
+
+V4 groups those V3 context records by context bucket, volatility regime, and liquidity status, then calculates worked, failed, reversal, and data-unavailable counts.
+
+## 32. What did V4 show?
+
+The V4 sample contains 9 grouped summary rows generated from 11 V3 event-time context records.
+
+The key pattern is that `volatility_only_context` dominates the sample. That group contains 9 records: 1 worked, 6 failed, and 2 reversed.
+
+Extreme volatility contains 7 records: 1 worked and 6 failed.
+
+Elevated volatility contains 2 records, and both are reversal outcomes.
+
+Liquidity status is mostly stale, with 10 of 11 records marked as stale. Because of that, the project still avoids strong liquidity-impact claims.
+
+## 33. What does V4 not prove?
+
+V4 does not prove that volatility caused the failures or reversals.
+
+The sample size is small, and liquidity data is mostly stale.
+
+V4 provides an honest context-conditioned reliability summary, not causal proof.
+
+The correct interpretation is that failed and reversal outcomes appear concentrated under certain volatility conditions, while liquidity-impact analysis remains limited until fresher event-time liquidity is available.
+
+## 34. How would I explain V4 in an interview?
+
+“After building V3 event-time context, I added a V4 context-conditioned outcome summary. It groups validated whale-flow records by context bucket, volatility regime, and liquidity status, then calculates support, failure, reversal, and data-unavailable rates. In the current sample, extreme volatility contains most failed outcomes, elevated volatility contains the reversal outcomes, and liquidity is mostly stale. I do not claim causality from this small sample. The value is that the project now separates signal validation from context-conditioned reliability analysis.”

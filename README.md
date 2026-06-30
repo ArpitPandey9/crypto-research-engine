@@ -91,7 +91,7 @@ The project currently includes:
 Current test status:
 
 ```text
-187 tests passing
+193 tests passing
 91% total coverage
 GitHub Actions CI: green
 ```
@@ -554,7 +554,7 @@ coverage report
 Current local result:
 
 ```text
-187 passed
+193 passed
 91% total coverage
 ```
 
@@ -759,3 +759,36 @@ In simple terms:
 This project is for research and education only.
 
 It is not financial advice, not a trading recommendation system, and not a production investment product.
+
+## Context-Conditioned Outcome Analysis V4
+
+V4 adds a grouped reliability layer on top of the V3 event-time context records.
+
+V2 validated whether positive ETH whale-flow signals worked, failed, reversed, or became unavailable after BTC benchmark adjustment.
+
+V3 attached prior-only volatility and liquidity context to each validated record.
+
+V4 summarizes those records by context bucket, volatility regime, and liquidity status, then calculates worked, failed, reversal, and data-unavailable counts.
+
+Current V4 artifacts:
+
+- [Context-Conditioned Outcome Analysis Plan](docs/CONTEXT_CONDITIONED_OUTCOME_PLAN.md)
+- `src/analytics/context_conditioned_outcomes.py`
+- `tests/test_context_conditioned_outcomes.py`
+- `scripts/run_context_conditioned_outcomes.py`
+- `data/samples/context_conditioned_outcomes_v4_sample.csv`
+
+Current V4 sample finding:
+
+- 11 V3 records were grouped into 9 V4 summary rows.
+- `volatility_only_context` contains 9 records: 1 worked, 6 failed, and 2 reversed.
+- `extreme` volatility contains 7 records: 1 worked and 6 failed.
+- `elevated` volatility contains 2 records, both reversal outcomes.
+- Liquidity status is mostly stale, so the project still avoids strong liquidity-impact claims.
+
+Current local verification:
+
+- 193 tests passing
+- 91% total coverage
+
+V4 does not claim causality. It provides an honest context-conditioned reliability summary and identifies the next data gap: fresher event-time liquidity.
