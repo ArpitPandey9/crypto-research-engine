@@ -560,3 +560,17 @@ The correct interpretation is that failed and reversal outcomes appear concentra
 ## 34. How would I explain V4 in an interview?
 
 “After building V3 event-time context, I added a V4 context-conditioned outcome summary. It groups validated whale-flow records by context bucket, volatility regime, and liquidity status, then calculates support, failure, reversal, and data-unavailable rates. In the current sample, extreme volatility contains most failed outcomes, elevated volatility contains the reversal outcomes, and liquidity is mostly stale. I do not claim causality from this small sample. The value is that the project now separates signal validation from context-conditioned reliability analysis.”
+---
+
+## 35. What did the V4 research note conclude?
+
+The V4 research note concluded that positive ETH whale-flow should not be treated as a standalone durable signal.
+
+V4 adds context by grouping validated outcomes across event-time volatility and liquidity conditions. The important research discipline is that stale or future liquidity snapshots are not used to calculate flow-to-liquidity ratios.
+
+This means the project can discuss volatility-regime context, but it cannot yet make strong liquidity-impact claims until historical liquidity backfill or a transparent liquidity proxy is added.
+
+Professional summary:
+
+“V4 moves the project from signal validation to context-conditioned reliability analysis. It keeps failed and reversal outcomes visible, avoids fake liquidity precision, and identifies event-time liquidity as the next major research limitation.”
+

@@ -773,6 +773,7 @@ V4 summarizes those records by context bucket, volatility regime, and liquidity 
 Current V4 artifacts:
 
 - [Context-Conditioned Outcome Analysis Plan](docs/CONTEXT_CONDITIONED_OUTCOME_PLAN.md)
+- [Context-Conditioned Outcome Research Note V4](docs/CONTEXT_CONDITIONED_OUTCOME_RESEARCH_NOTE_V4.md)
 - `src/analytics/context_conditioned_outcomes.py`
 - `tests/test_context_conditioned_outcomes.py`
 - `scripts/run_context_conditioned_outcomes.py`
