@@ -2,99 +2,115 @@
 
 [![CI](https://github.com/ArpitPandey9/crypto-research-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ArpitPandey9/crypto-research-engine/actions/workflows/ci.yml)
 
-A research-grade crypto whale-flow analysis system that combines on-chain transfer detection, local SQLite storage, price normalization, whale-flow signal generation, liquidity context, benchmark-adjusted outcome validation, persistent validation datasets, vectorized backtesting, automated tests, and an interactive Streamlit dashboard.
+**On-chain whale-flow research engine for crypto market structure, DeFi liquidity context, and benchmark-adjusted signal validation.**
 
-This project is built as a flagship proof-of-work system for crypto quant research, DeFi analytics, and protocol-level market structure thinking.
+This project tests whether large on-chain whale-flow events become decision-useful under specific market conditions, instead of assuming that whale transfers automatically create reliable price signals.
+
+It combines on-chain transfer detection, USD normalization, whale-flow signal generation, volatility context, DEX liquidity context, BTC benchmark-adjusted outcome validation, persistent validation datasets, backtesting, automated tests, and a Streamlit research dashboard.
 
 ---
 
-## Why This Project Exists
+## Current Research Finding
 
-Crypto markets are not driven only by price charts. Large wallets, exchange flows, token transfers, liquidity movement, and whale behavior can create early signals of market pressure.
+The current validation results suggest that **positive ETH whale-flow should not be treated as a standalone durable signal**.
 
-This project studies a simple but important research question:
+In the first real validation samples, positive ETH whale-flow often failed or reversed after adjusting ETH performance against the BTC benchmark. This means ETH sometimes moved up in raw price, but did not outperform broader crypto market movement.
 
-> Can large on-chain whale transfers, normalized into USD flow pressure, help explain or signal future asset behavior?
+The project therefore treats whale-flow as a **testable hypothesis**, not as proof of price impact.
 
-The current research direction is more specific:
+Liquidity interpretation is also intentionally conservative. Current V3/V4 liquidity context is often stale or unavailable, so the project does **not** calculate misleading flow-to-liquidity ratios or make strong liquidity-impact claims when event-time DEX liquidity is not fresh.
+
+---
+
+## What This Project Tests
+
+This project studies one core research question:
 
 > Under what market conditions does whale-flow become decision-useful rather than noise?
 
-Instead of building another price-only dashboard, this project builds a full research pipeline:
+The pipeline is designed to answer that question through:
 
-```text
-on-chain activity
+~~~text
+on-chain whale movement
 ↓
-local SQLite vault
+USD-normalized flow pressure
 ↓
-historical price normalization
+rolling whale-flow signal
 ↓
-whale-flow signal generation
+volatility and liquidity context
 ↓
-liquidity and volatility context
+BTC benchmark-adjusted outcome validation
 ↓
-benchmark-adjusted outcome validation
+worked / failed / reversal / unavailable classification
 ↓
-persistent outcome-validation dataset
-↓
-cost-aware backtesting
-↓
-Streamlit research dashboard
-↓
-tests + CI validation
-```
+context-conditioned V4 analysis
+~~~
 
 ---
 
-## Current Status
+## What This Project Does Not Claim
 
-The project currently includes:
+This project does **not** claim that:
 
-* Ethereum whale transaction scanner
-* Native ETH transfer detection
-* Selected ERC-20 transfer parsing
-* Local SQLite database vault
-* Binance historical price downloader
-* USD normalization of whale volume
-* Enriched whale-event table
-* Whale-flow signal generation
-* Whale-flow mechanism layer design note
-* Liquidity depth size-ratio risk helpers
-* Property-based liquidity-risk invariant tests
-* Flow-context classification helpers
-* Dashboard-ready mechanism signal builder
-* Real-data mechanism signal adapter
-* Real DEX pool-depth client using DEX Screener
-* Real DEX pool-depth SQLite ingestion
-* Real DEX pool-depth repository access layer
-* Rolling net-flow strategy logic
-* Cost-aware vectorized backtesting
-* Automatic volatility-regime classifier
-* Dashboard mechanism-signal integration
-* Dashboard data audit script
-* Whale-flow stress-test research note
-* Outcome validation plan
-* Benchmark-adjusted abnormal-return validation helpers
-* Evidence-quality and failure-mode interpretation
-* Outcome Validation Dataset Engine V2
-* Persistent `outcome_validation_records` SQLite dataset table
-* Historical Ethereum block backfill script
-* Outcome Validation Research Note V2
-* Streamlit dashboard
-* Unit tests
-* Integration tests
-* Property-based tests
-* Streamlit app tests
-* Full pytest discovery in GitHub Actions CI
-* Coverage reporting
+* whale transfers always cause price movement
+* every large transfer is a buy or sell
+* DEX liquidity proves exact market impact
+* stale liquidity can support flow-to-liquidity impact ratios
+* BTC is a perfect benchmark for all crypto market movement
+* this is a production trading system or financial advice
 
-Current test status:
+Instead, it separates:
 
-```text
+~~~text
+observed movement
+derived signal
+market context
+validated outcome
+research limitation
+~~~
+
+That separation is the main research discipline of the project.
+
+---
+
+## Proof and Reproducibility Status
+
+Current status:
+
+~~~text
 193 tests passing
 91% total coverage
 GitHub Actions CI: green
-```
+~~~
+
+The repository includes:
+
+* on-chain transfer scanning
+* local SQLite research database
+* ETH/BTC price normalization
+* rolling whale-flow signal generation
+* BTC-adjusted abnormal-return validation
+* +6h and +24h outcome classification
+* persistent outcome-validation dataset
+* V3 event-time volatility and liquidity context
+* V4 context-conditioned outcome analysis
+* stale-liquidity safeguards
+* Streamlit dashboard
+* automated unit, integration, property-based, and dashboard tests
+
+---
+
+## Key Research Notes
+
+Start here:
+
+* [Outcome Validation Plan](docs/OUTCOME_VALIDATION_PLAN.md)
+* [Outcome Validation Result Note](docs/OUTCOME_VALIDATION_RESULT_NOTE.md)
+* [Outcome Validation Research Note V2](docs/OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md)
+* [Event-Time Context V3](docs/EVENT_TIME_CONTEXT_V3.md)
+* [Context-Conditioned Outcome Plan](docs/CONTEXT_CONDITIONED_OUTCOME_PLAN.md)
+* [Context-Conditioned Outcome Research Note V4](docs/CONTEXT_CONDITIONED_OUTCOME_RESEARCH_NOTE_V4.md)
+* [QA / Project Defense Notes](docs/QA.md)
 
 ---
 
