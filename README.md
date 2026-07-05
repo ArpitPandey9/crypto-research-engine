@@ -832,3 +832,8 @@ Current local verification:
 - 91% total coverage
 
 V4 does not claim causality. It provides an honest context-conditioned reliability summary and identifies the next data gap: fresher event-time liquidity.
+
+## Data reproducibility
+
+The local SQLite research database `data/db/whale_data.db` is intentionally not committed because it is a generated local artifact. Fresh clones can run tests and inspect sample CSV artifacts without the database. Full dashboard/runtime use requires rebuilding or restoring the local database. See [Data Reproducibility](docs/DATA_REPRODUCIBILITY.md).
+
