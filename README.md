@@ -158,70 +158,93 @@ interactive Streamlit dashboard
 
 ## Repository Structure
 
-```text
-crypto-research-engine/
-├── app.py
-├── requirements.txt
-├── pytest.ini
-├── .coveragerc
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-├── data/
-│   └── db/
-│       └── whale_data.db              # local only, ignored by git
-├── docs/
-│   ├── QA.md
-│   ├── OUTCOME_VALIDATION_DATASET_ENGINE_V2.md
-│   ├── OUTCOME_VALIDATION_PLAN.md
-│   ├── OUTCOME_VALIDATION_RESULT_NOTE.md
-│   ├── OUTCOME_VALIDATION_RESEARCH_NOTE.md
-│   ├── OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md
-│   ├── STRESS_TEST_NOTE.md
-│   └── whale_flow_mechanism_layer.md
-├── src/
-│   ├── data/
-│   │   ├── fetch_prices.py
-│   │   ├── onchain_client.py
-│   │   ├── dexscreener_client.py
-│   │   ├── update_dex_pool_depths.py
-│   │   └── pool_depth_repository.py
-│   ├── analytics/
-│   │   ├── liquidity_risk.py
-│   │   ├── flow_context.py
-│   │   ├── mechanism_signal.py
-│   │   ├── real_mechanism_signal.py
-│   │   ├── volatility_regime.py
-│   │   ├── outcome_validation.py
-│   │   ├── outcome_validation_table.py
-│   │   └── outcome_validation_dataset.py
-│   └── strategies/
-│       ├── run_whale_signals.py
-│       └── whale_signals.py
-├── scripts/
-│   ├── audit_dashboard_data.py
-│   ├── backfill_whale_blocks.py
-│   └── run_outcome_validation.py
-└── tests/
-    ├── test_app_streamlit.py
-    ├── test_backfill_whale_blocks.py
-    ├── test_run_whale_signals_integration.py
-    ├── test_run_whale_signals_unit.py
-    ├── test_whale_signals.py
-    ├── test_whale_signals_properties.py
-    ├── test_liquidity_risk.py
-    ├── test_liquidity_risk_properties.py
-    ├── test_flow_context.py
-    ├── test_mechanism_signal.py
-    ├── test_real_mechanism_signal.py
-    ├── test_volatility_regime.py
-    ├── test_dexscreener_client.py
-    ├── test_update_dex_pool_depths.py
-    ├── test_pool_depth_repository.py
-    ├── test_outcome_validation.py
-    ├── test_outcome_validation_table.py
-    └── test_outcome_validation_dataset.py
-```
+The repository is organized around a tested research pipeline: data ingestion, signal generation, outcome validation, event-time context, context-conditioned analysis, documentation, and sample outputs.
+
+### Application and configuration
+
+- `app.py`
+- `requirements.txt`
+- `pytest.ini`
+- `.coveragerc`
+- `.github/workflows/ci.yml`
+
+### Research documentation
+
+- `docs/CONTEXT_CONDITIONED_OUTCOME_PLAN.md`
+- `docs/CONTEXT_CONDITIONED_OUTCOME_RESEARCH_NOTE_V4.md`
+- `docs/EVENT_TIME_CONTEXT_V3.md`
+- `docs/OUTCOME_VALIDATION_DATASET_ENGINE_V2.md`
+- `docs/OUTCOME_VALIDATION_PLAN.md`
+- `docs/OUTCOME_VALIDATION_RESEARCH_NOTE.md`
+- `docs/OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md`
+- `docs/OUTCOME_VALIDATION_RESULT_NOTE.md`
+- `docs/QA.md`
+- `docs/RESULTS.md`
+- `docs/STRESS_TEST_NOTE.md`
+- `docs/whale_flow_mechanism_layer.md`
+
+### Public sample outputs
+
+- `data/samples/context_conditioned_outcomes_v4_sample.csv`
+- `data/samples/event_time_context_v3_sample.csv`
+- `data/samples/outcome_validation_v2_sample.csv`
+
+### Data ingestion modules
+
+- `src/data/dexscreener_client.py`
+- `src/data/fetch_prices.py`
+- `src/data/onchain_client.py`
+- `src/data/pool_depth_repository.py`
+- `src/data/update_dex_pool_depths.py`
+
+### Analytics modules
+
+- `src/analytics/context_conditioned_outcomes.py`
+- `src/analytics/event_time_context.py`
+- `src/analytics/flow_context.py`
+- `src/analytics/liquidity_risk.py`
+- `src/analytics/mechanism_signal.py`
+- `src/analytics/outcome_validation.py`
+- `src/analytics/outcome_validation_dataset.py`
+- `src/analytics/outcome_validation_table.py`
+- `src/analytics/real_mechanism_signal.py`
+- `src/analytics/volatility_regime.py`
+
+### Strategy modules
+
+- `src/strategies/__init__.py`
+- `src/strategies/run_whale_signals.py`
+- `src/strategies/whale_signals.py`
+
+### Scripts
+
+- `scripts/audit_dashboard_data.py`
+- `scripts/backfill_whale_blocks.py`
+- `scripts/run_context_conditioned_outcomes.py`
+- `scripts/run_outcome_validation.py`
+
+### Tests
+
+- `tests/test_app_streamlit.py`
+- `tests/test_backfill_whale_blocks.py`
+- `tests/test_context_conditioned_outcomes.py`
+- `tests/test_dexscreener_client.py`
+- `tests/test_event_time_context.py`
+- `tests/test_flow_context.py`
+- `tests/test_liquidity_risk.py`
+- `tests/test_liquidity_risk_properties.py`
+- `tests/test_mechanism_signal.py`
+- `tests/test_outcome_validation.py`
+- `tests/test_outcome_validation_dataset.py`
+- `tests/test_outcome_validation_table.py`
+- `tests/test_pool_depth_repository.py`
+- `tests/test_real_mechanism_signal.py`
+- `tests/test_run_whale_signals_integration.py`
+- `tests/test_run_whale_signals_unit.py`
+- `tests/test_update_dex_pool_depths.py`
+- `tests/test_volatility_regime.py`
+- `tests/test_whale_signals.py`
+- `tests/test_whale_signals_properties.py`
 
 ---
 
