@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/ArpitPandey9/crypto-research-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ArpitPandey9/crypto-research-engine/actions/workflows/ci.yml)
 
+[Portfolio](https://arpitpandey9.github.io) · [GitHub Profile](https://github.com/ArpitPandey9)
+
 **On-chain whale-flow research engine for crypto market structure, DeFi liquidity context, and benchmark-adjusted signal validation.**
 
 This project tests whether large on-chain whale-flow events become decision-useful under specific market conditions, instead of assuming that whale transfers automatically create reliable price signals.
