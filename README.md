@@ -80,7 +80,7 @@ That separation is the main research discipline of the project.
 Current status:
 
 ~~~text
-193 tests passing
+214 tests passing
 91% total coverage
 GitHub Actions CI: green
 ~~~
@@ -852,10 +852,10 @@ Current V4 sample finding:
 
 Current local verification:
 
-- 193 tests passing
+- 214 tests passing
 - 91% total coverage
 
-V4 does not claim causality. It provides an honest context-conditioned reliability summary and identifies the next data gap: fresher event-time liquidity.
+V4 remains the historical context-conditioned reliability layer. The active V5 research path adds explicit point-in-time market-data availability and next-open execution semantics. The next major data gap remains fresher event-time liquidity.
 
 ## Data reproducibility
 
