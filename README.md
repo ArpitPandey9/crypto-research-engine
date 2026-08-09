@@ -425,14 +425,16 @@ The research goal is to eventually compare signal reliability across volatility 
 
 The backtest is vectorized with pandas.
 
-Important design choice:
+Important timing design (V5 causal methodology):
 
 ```text
-signal observed at hour t
-position applied from hour t+1
+hourly bucket t completes
+signal_available_at = bucket end
+position enters at the next bar open
+returns are measured from that executable open forward
 ```
 
-This avoids lookahead bias.
+The earlier close-to-close shifted implementation is retained only for historical-methodology reproducibility. The active research path uses explicit signal availability plus next-open execution so the price used to finalize a signal is not also assumed to be an already-executable entry price.
 
 The backtest calculates:
 
@@ -632,10 +634,17 @@ Current WBTC audit result:
 * [Outcome Validation Result Note v1](docs/OUTCOME_VALIDATION_RESULT_NOTE.md) records the first real ETH validation sample, where a positive whale-flow signal failed after BTC benchmark adjustment and was classified as strong evidence with an unsupported_signal failure mode.
 * [Outcome Validation Research Note v1](docs/OUTCOME_VALIDATION_RESEARCH_NOTE.md) summarizes the first validation result as a short research note with hypothesis, signal tested, result, interpretation, limitations, and next improvement.
 * [Outcome Validation Research Note V2](docs/OUTCOME_VALIDATION_RESEARCH_NOTE_V2.md) summarizes the first small outcome-validation dataset: 11 stored records, 10 testable records, 1 worked signal, 7 failed signals, 2 short-lived reversal cases, and a 10.00% support rate.
-* [Outcome Validation Results](docs/RESULTS.md) summarizes the public V2 result table and links to the case-level CSV sample.
+* [Outcome Validation Results](docs/RESULTS.md) preserves the public V2 result table and links to the case-level CSV sample.
+* [Causal Remediation Result V5](docs/CAUSAL_REMEDIATION_RESULT_V5.md) records the real-data causal backfill, legacy-vs-V5 execution comparison, and fresh causal outcome-validation result.
 * [Event-Time Market Context V3](docs/EVENT_TIME_CONTEXT_V3.md) explains the prior-only volatility/liquidity context layer and links to the V3 case-level sample at `data/samples/event_time_context_v3_sample.csv`.
 * [Outcome Validation Dataset Engine V2](docs/OUTCOME_VALIDATION_DATASET_ENGINE_V2.md) defines the persistent SQLite dataset layer for storing validated whale-flow outcomes across multiple events.
 * [Whale-Flow Stress Test Note v1](docs/STRESS_TEST_NOTE.md) explains how the whale-flow signal is being evaluated beyond a basic dashboard, including failure modes, liquidity absorption risk, volatility context, and decision-useful interpretation.
+
+Reproduce the legacy-vs-causal comparison locally (read-only SQLite access):
+
+```bash
+python scripts/compare_legacy_v2_vs_causal_v5.py
+```
 
 ---
 
@@ -686,7 +695,7 @@ This means the first real ETH whale-flow sample was not supported after BTC benc
 
 The project records this honestly as research evidence, not as a guaranteed prediction.
 
-V2 dataset summary:
+V2 dataset summary (frozen historical methodology artifact):
 
 * stored validation records: 11
 * testable records: 10
@@ -696,7 +705,20 @@ V2 dataset summary:
 * data unavailable: 1
 * support rate: 10.00%
 
-This means the first small ETH positive whale-flow dataset does not support a simple claim that whale-flow reliably predicts durable BTC-adjusted outperformance.
+Fresh causal V5/V3 recomputation after the historical price backfill:
+
+* matched historical signal buckets: 11 / 11
+* testable records: 11
+* worked: 2
+* failed: 7
+* reversal / short-lived reaction: 2
+* data unavailable: 0
+* support rate: 18.18%
+* overall-label changes vs frozen V2: 1 (`data_unavailable` → `worked`)
+
+A controlled execution comparison on the same current ETH data and signal frame produced 13 trades under both methods. Strategy net equity moved from 1.022424x under the legacy close-to-close convention to 1.005253x under V5 causal next-open execution; causal invariant failures were zero.
+
+The updated result still does not support a simple claim that positive ETH whale-flow reliably predicts durable BTC-adjusted outperformance. V5 improves timing discipline and data availability without turning the small sample into strong predictive evidence.
 
 
 ---
@@ -753,7 +775,7 @@ Current limitations:
 * local SQLite database is not committed to GitHub
 * dashboard depends on locally generated database tables
 * local SQLite outcome-validation records are not committed to GitHub
-* latest local V2 research run reached 11 stored records and 10 testable records, summarized in Outcome Validation Research Note V2
+* frozen V2 research artifact contains 11 stored records / 10 testable records at a 10.00% support rate; the fresh causal V5/V3 recomputation has 11 / 11 testable records, 2 worked cases, and an 18.18% support rate
 * event-time volatility context is attached to validation records in V3
 * current V3 liquidity context is mostly stale, so flow-to-liquidity impact claims remain unavailable until historical liquidity backfill or a transparent liquidity proxy is added
 * signals are research signals, not financial advice

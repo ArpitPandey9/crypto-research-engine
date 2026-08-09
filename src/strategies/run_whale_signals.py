@@ -25,7 +25,10 @@ from pathlib import Path
 import pandas as pd
 from pandas.errors import DatabaseError as PandasDatabaseError
 
-from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy
+from src.strategies.whale_signals import (
+    analyze_whale_flow,
+    backtest_whale_strategy_causal as backtest_whale_strategy,
+)
 
 
 # ==========================================

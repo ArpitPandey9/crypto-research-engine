@@ -27,7 +27,7 @@ import streamlit as st
 
 from src.analytics.real_mechanism_signal import build_real_mechanism_signal
 from src.analytics.volatility_regime import build_volatility_regime
-from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy
+from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy_causal
 
 
 # ==========================================
@@ -145,7 +145,7 @@ def run_analysis(
         price_df=prices_df,
     )
 
-    results_df = backtest_whale_strategy(
+    results_df = backtest_whale_strategy_causal(
         df=signals_df,
         cost_per_trade=cost_per_trade,
     )
@@ -336,15 +336,21 @@ latest_event_ts = (
     else pd.NaT
 )
 
+freshness_price_asset = VOLATILITY_PRICE_ASSET_LOOKUP.get(target_asset, target_asset)
 target_prices_df = raw_prices_df[
-    raw_prices_df["asset_type"].astype(str).str.upper() == target_asset
+    raw_prices_df["asset_type"].astype(str).str.upper() == freshness_price_asset
 ].copy()
 
-latest_price_ts = (
-    target_prices_df["timestamp"].max()
-    if "timestamp" in target_prices_df.columns and not target_prices_df.empty
-    else pd.NaT
-)
+if not target_prices_df.empty and "price_available_at" in target_prices_df.columns:
+    latest_price_ts = pd.to_datetime(
+        target_prices_df["price_available_at"], utc=True, errors="coerce"
+    ).max()
+elif "timestamp" in target_prices_df.columns and not target_prices_df.empty:
+    latest_price_ts = pd.to_datetime(
+        target_prices_df["timestamp"], utc=True, errors="coerce"
+    ).max() + pd.Timedelta(hours=1)
+else:
+    latest_price_ts = pd.NaT
 
 db_last_updated = pd.to_datetime(DB_PATH.stat().st_mtime_ns, unit="ns", utc=True)
 

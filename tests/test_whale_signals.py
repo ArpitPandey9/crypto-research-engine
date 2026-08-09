@@ -215,3 +215,66 @@ def test_backtest_rejects_missing_required_columns() -> None:
 
     with pytest.raises(ValueError, match="Missing required columns"):
         backtest_whale_strategy(bad_df)
+
+def test_causal_backtest_enters_only_after_signal_is_available() -> None:
+    from src.strategies.whale_signals import backtest_whale_strategy_causal
+
+    frame = pd.DataFrame(
+        [
+            {
+                "timestamp": "2026-04-23 09:00:00+00:00",
+                "target_asset": "ETH",
+                "price_usd": 2316.25,
+                "open_price_usd": 2339.91,
+                "signal": 1,
+                "rolling_net_flow": 1_899_322.0,
+                "signal_available_at": "2026-04-23 10:00:00+00:00",
+            },
+            {
+                "timestamp": "2026-04-23 10:00:00+00:00",
+                "target_asset": "ETH",
+                "price_usd": 2314.09,
+                "open_price_usd": 2316.24,
+                "signal": 1,
+                "rolling_net_flow": 1_899_322.0,
+                "signal_available_at": "2026-04-23 11:00:00+00:00",
+            },
+            {
+                "timestamp": "2026-04-23 11:00:00+00:00",
+                "target_asset": "ETH",
+                "price_usd": 2328.97,
+                "open_price_usd": 2314.08,
+                "signal": 1,
+                "rolling_net_flow": 1_899_322.0,
+                "signal_available_at": "2026-04-23 12:00:00+00:00",
+            },
+        ]
+    )
+
+    result = backtest_whale_strategy_causal(frame, cost_per_trade=0.0)
+    row = result.iloc[1]
+    assert row["position"] == 1
+    assert row["entry_time"] == pd.Timestamp("2026-04-23 10:00:00+00:00")
+    assert row["source_signal_available_at"] == pd.Timestamp("2026-04-23 10:00:00+00:00")
+    assert bool(row["causal_execution_ok"])
+    assert float(row["asset_return"]) == pytest.approx(2314.08 / 2316.24 - 1.0)
+    assert row["methodology_version"] == "v5_causal_next_open"
+
+
+def test_causal_backtest_rejects_missing_open_prices() -> None:
+    from src.strategies.whale_signals import backtest_whale_strategy_causal
+
+    frame = pd.DataFrame(
+        [
+            {
+                "timestamp": "2026-01-01 00:00:00+00:00",
+                "target_asset": "ETH",
+                "signal": 1,
+                "rolling_net_flow": 1.0,
+                "open_price_usd": None,
+                "signal_available_at": "2026-01-01 01:00:00+00:00",
+            }
+        ]
+    )
+    with pytest.raises(ValueError, match="requires non-missing open_price_usd"):
+        backtest_whale_strategy_causal(frame)

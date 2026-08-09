@@ -1,5 +1,7 @@
 # Outcome Validation Results
 
+> **Historical methodology artifact.** This document preserves the original V2 result and data-availability state. For the current causal-timing methodology and fresh real-data comparison, see [Causal Remediation Result V5](CAUSAL_REMEDIATION_RESULT_V5.md).
+
 ## Purpose
 
 This document summarizes the current public outcome-validation result for the Crypto Research Engine.

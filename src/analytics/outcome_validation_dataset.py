@@ -22,7 +22,10 @@ TABLE_NAME = "outcome_validation_records"
 
 DATASET_COLUMNS = [
     "record_key",
+    "methodology_version",
     "event_timestamp",
+    "signal_bucket_start",
+    "signal_available_at",
     "target_asset",
     "target_price_asset",
     "benchmark_asset",
@@ -73,7 +76,10 @@ REQUIRED_VALIDATION_COLUMNS = {
 CREATE_TABLE_SQL = f"""
 CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
     record_key TEXT PRIMARY KEY,
+    methodology_version TEXT,
     event_timestamp TEXT NOT NULL,
+    signal_bucket_start TEXT,
+    signal_available_at TEXT,
     target_asset TEXT NOT NULL,
     target_price_asset TEXT,
     benchmark_asset TEXT NOT NULL,
@@ -103,7 +109,10 @@ CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
 INSERT_OR_REPLACE_SQL = f"""
 INSERT OR REPLACE INTO {TABLE_NAME} (
     record_key,
+    methodology_version,
     event_timestamp,
+    signal_bucket_start,
+    signal_available_at,
     target_asset,
     target_price_asset,
     benchmark_asset,
@@ -128,7 +137,7 @@ INSERT OR REPLACE INTO {TABLE_NAME} (
     validation_notes,
     created_at
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 """
 
 
@@ -139,6 +148,15 @@ def initialize_outcome_validation_dataset(db_path: Path) -> None:
 
     with sqlite3.connect(db_path) as conn:
         conn.execute(CREATE_TABLE_SQL)
+        existing = {row[1] for row in conn.execute(f"PRAGMA table_info({TABLE_NAME})")}
+        additions = {
+            "methodology_version": "TEXT",
+            "signal_bucket_start": "TEXT",
+            "signal_available_at": "TEXT",
+        }
+        for column, sql_type in additions.items():
+            if column not in existing:
+                conn.execute(f"ALTER TABLE {TABLE_NAME} ADD COLUMN {column} {sql_type}")
 
 
 def _to_database_value(value: Any) -> Any:
@@ -169,9 +187,10 @@ def _record_key(row: pd.Series, window_hours: int, min_flow_usd: float) -> str:
     target_asset = str(row["target_asset"]).upper()
     benchmark_asset = str(row["benchmark_asset"]).upper()
     signal = int(row["signal"])
+    methodology_version = str(row.get("methodology_version", "legacy_v2"))
 
     return (
-        f"{target_asset}|{benchmark_asset}|{event_timestamp}|"
+        f"{methodology_version}|{target_asset}|{benchmark_asset}|{event_timestamp}|"
         f"window={int(window_hours)}|min_flow={float(min_flow_usd)}|signal={signal}"
     )
 
@@ -201,7 +220,10 @@ def prepare_outcome_validation_records(
                 window_hours=window_hours,
                 min_flow_usd=min_flow_usd,
             ),
+            "methodology_version": str(row.get("methodology_version", "legacy_v2")),
             "event_timestamp": str(row["event_timestamp"]),
+            "signal_bucket_start": _to_database_value(row.get("signal_bucket_start")),
+            "signal_available_at": _to_database_value(row.get("signal_available_at")),
             "target_asset": str(row["target_asset"]).upper(),
             "target_price_asset": str(row["target_price_asset"]).upper(),
             "benchmark_asset": str(row["benchmark_asset"]).upper(),
