@@ -13,7 +13,7 @@ import pandas as pd
 
 from src.analytics.real_mechanism_signal import build_real_mechanism_signal
 from src.analytics.volatility_regime import build_volatility_regime
-from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy
+from src.strategies.whale_signals import analyze_whale_flow, backtest_whale_strategy_causal
 
 
 DB_PATH = ROOT / "data" / "db" / "whale_data.db"
@@ -89,10 +89,18 @@ def main() -> int:
         prices["asset_type"].astype(str).str.upper() == volatility_price_asset
     ][["timestamp", "price_usd"]].copy()
 
-    latest_price_ts = volatility_prices["timestamp"].max()
+    if "price_available_at" in prices.columns:
+        price_availability = pd.to_datetime(
+            prices.loc[volatility_prices.index, "price_available_at"],
+            utc=True,
+            errors="coerce",
+        )
+        latest_price_ts = price_availability.max()
+    else:
+        latest_price_ts = volatility_prices["timestamp"].max() + pd.Timedelta(hours=1)
     print(f"Volatility price asset: {volatility_price_asset}")
     print(f"Volatility price rows: {len(volatility_prices)}")
-    print(f"Latest market price timestamp: {latest_price_ts}")
+    print(f"Latest market price available at: {latest_price_ts}")
 
     if len(target_events) == 0:
         print("\n=== Strategy Availability ===")
@@ -110,7 +118,7 @@ def main() -> int:
         price_df=prices,
     )
 
-    results = backtest_whale_strategy(
+    results = backtest_whale_strategy_causal(
         df=signals,
         cost_per_trade=args.cost_per_trade,
     )
@@ -118,6 +126,14 @@ def main() -> int:
     if signals.empty or results.empty:
         print("[FAIL] Strategy output is empty.")
         return 1
+
+    if "causal_execution_ok" not in results.columns or not bool(results["causal_execution_ok"].all()):
+        print("[FAIL] Causal execution invariant is not satisfied for every strategy row.")
+        return 1
+
+    methodology_versions = sorted(set(results.get("methodology_version", pd.Series(dtype=str)).dropna().astype(str)))
+    print(f"Backtest methodology: {methodology_versions or ['unknown']}")
+    print("[PASS] Causal execution invariant holds for every strategy row.")
 
     research_rows = len(results)
     total_trades = int(results["trade_flag"].sum())

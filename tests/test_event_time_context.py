@@ -439,3 +439,43 @@ def test_build_event_time_context_detects_fragile_market_context():
     assert row["flow_to_liquidity_ratio"] == pytest.approx(0.20)
     assert row["price_impact_risk"] == "Extreme Price-Impact Risk"
     assert row["context_bucket"] == "fragile_market_context"
+
+
+def test_event_time_context_excludes_price_close_not_yet_available():
+    records = sample_records()
+    prices = sample_prices()
+    prices["price_available_at"] = pd.to_datetime(prices["timestamp"], utc=True) + pd.Timedelta(hours=1)
+
+    baseline = build_event_time_context(
+        records=records,
+        price_history=prices.iloc[:-1].copy(),
+        volatility_window_size=3,
+    )
+
+    future_close = prices.iloc[[-1]].copy()
+    future_close["price_usd"] = 10_000.0
+    with_future = pd.concat([prices.iloc[:-1], future_close], ignore_index=True)
+
+    context = build_event_time_context(
+        records=records,
+        price_history=with_future,
+        volatility_window_size=3,
+    )
+
+    assert context.loc[0, "event_volatility_regime"] == baseline.loc[0, "event_volatility_regime"]
+    assert context.loc[0, "event_realized_volatility"] == pytest.approx(
+        baseline.loc[0, "event_realized_volatility"]
+    )
+
+
+def test_event_time_context_legacy_close_is_available_next_hour():
+    records = sample_records()
+    prices = sample_prices()
+
+    context = build_event_time_context(
+        records=records,
+        price_history=prices,
+        volatility_window_size=3,
+    )
+
+    assert context.loc[0, "event_volatility_status"] == AVAILABLE_STATUS

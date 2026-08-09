@@ -145,7 +145,23 @@ def _normalize_price_history(price_history: pd.DataFrame) -> pd.DataFrame:
     if out["price_usd"].isna().any():
         raise ValueError("price_usd contains invalid values")
 
-    return out.sort_values("timestamp").reset_index(drop=True)
+    if "price_available_at" in out.columns:
+        available = pd.to_datetime(out["price_available_at"], utc=True, errors="coerce")
+    elif "close_time" in out.columns:
+        available = (
+            pd.to_datetime(out["close_time"], utc=True, errors="coerce")
+            + pd.Timedelta(milliseconds=1)
+        )
+    else:
+        # Legacy rows store an hourly close under the candle-open timestamp.
+        # Treat that close as available only at the next hourly boundary.
+        available = out["timestamp"] + pd.Timedelta(hours=1)
+
+    if available.isna().any():
+        raise ValueError("price_available_at contains invalid values")
+
+    out["price_available_at"] = available
+    return out.sort_values("price_available_at").reset_index(drop=True)
 
 
 def _normalize_pool_depths(pool_depths: pd.DataFrame | None) -> pd.DataFrame:
@@ -186,8 +202,10 @@ def _build_event_volatility_context(
 
     event_prices = price_history[
         (price_history["asset_type"] == price_asset)
-        & (price_history["timestamp"] <= event_timestamp)
-    ][["timestamp", "price_usd"]]
+        & (price_history["price_available_at"] <= event_timestamp)
+    ][["price_available_at", "price_usd"]].rename(
+        columns={"price_available_at": "timestamp"}
+    )
 
     result = build_volatility_regime(
         prices=event_prices,

@@ -154,11 +154,9 @@ The threshold prevents the model from reacting to tiny or meaningless movement.
 
 ## 9. Why does the backtest shift the signal?
 
-The strategy uses the signal from one hour and applies the position from the next hour.
+The current V5 research path makes timing explicit. An hourly signal is not considered available until the bucket has completed (`signal_available_at`). The causal backtest then enters at the next bar open and measures returns forward from that executable price.
 
-This prevents lookahead bias.
-
-Without shifting, the backtest could accidentally use information from the same period it is trying to trade, which would make the result unrealistic.
+A one-row signal shift by itself is not sufficient proof against lookahead if the signal-finalizing close is also treated as an immediately executable entry. The project therefore keeps the older shifted close-to-close method only for historical reproducibility and uses explicit availability/execution timestamps for new research.
 
 ---
 
@@ -170,11 +168,14 @@ Example:
 
 If I use a signal from 1 PM to trade the 1 PM return, I may be cheating because the full 1 PM data may only be known after that hour finishes.
 
-To avoid this, the project applies:
+To avoid this, the V5 path applies:
 
 ```text
-signal at time t
-position at time t+1
+bucket completes
+→ signal becomes available
+→ next bar opens
+→ position may enter
+→ subsequent return is measured
 ```
 
 ---
@@ -322,7 +323,7 @@ I would say:
 
 Then I would add:
 
-> The main learning was not just building charts. The real learning was building a reproducible pipeline, avoiding lookahead bias, making tests environment-independent, and improving the project from a learner script into a research-style system.
+> The main learning was not just building charts. The real learning was making market-data availability and execution timing explicit, testing causal invariants, preserving historical methodology for auditability, and improving the project from a learner script into a research-style system.
 
 ---
 
@@ -442,7 +443,24 @@ The result is:
 - 1 data_unavailable record
 - 10.00% support rate
 
-This means the current sample does not support a simple claim that positive ETH whale-flow reliably predicts durable BTC-adjusted outperformance.
+This means the frozen V2 sample does not support a simple claim that positive ETH whale-flow reliably predicts durable BTC-adjusted outperformance.
+
+### What changed when the same historical signal universe was recomputed under the causal V5/V3 methodology?
+
+The causal recomputation matched all 11 historical signal buckets. Ten overall labels stayed the same. One record changed from `data_unavailable` to `worked` after the historical price backfill supplied the missing forward window.
+
+The fresh causal result is:
+
+- 11 testable records
+- 2 worked signals
+- 7 failed signals
+- 2 short-lived reversal signals
+- 0 data-unavailable records
+- 18.18% support rate
+
+The execution comparison also became more conservative: with the same current ETH data and signal frame, strategy net equity changed from 1.022424x under the legacy close-to-close convention to 1.005253x under causal next-open execution, with the same 13 trades and zero causal invariant failures.
+
+The research conclusion remains cautious. Two worked cases out of eleven are not enough to claim that positive ETH whale-flow is a reliable standalone predictor.
 
 ## 26. What is Event-Time Market Context V3?
 

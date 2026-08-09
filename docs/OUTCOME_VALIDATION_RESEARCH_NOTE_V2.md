@@ -1,5 +1,7 @@
 # Outcome Validation Research Note V2
 
+> **Historical methodology artifact.** This document preserves the original V2 result and data-availability state. For the current causal-timing methodology and fresh real-data comparison, see [Causal Remediation Result V5](CAUSAL_REMEDIATION_RESULT_V5.md).
+
 ## Hypothesis
 
 Positive ETH whale-flow may indicate future ETH outperformance when compared against BTC benchmark movement.

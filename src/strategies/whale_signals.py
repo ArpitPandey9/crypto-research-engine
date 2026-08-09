@@ -127,6 +127,18 @@ def _prepare_price_frame(price_df: pd.DataFrame, target_asset: str) -> pd.DataFr
 
     out["asset_type"] = out["asset_type"].fillna("UNKNOWN").astype(str).str.upper()
     out["price_usd"] = pd.to_numeric(out["price_usd"], errors="coerce")
+    if "open_price" in out.columns:
+        out["open_price"] = pd.to_numeric(out["open_price"], errors="coerce")
+    else:
+        out["open_price"] = pd.NA
+    if "price_available_at" in out.columns:
+        out["price_available_at"] = pd.to_datetime(out["price_available_at"], utc=True, errors="coerce")
+    elif "close_time" in out.columns:
+        out["price_available_at"] = pd.to_datetime(out["close_time"], utc=True, errors="coerce") + pd.Timedelta(milliseconds=1)
+    else:
+        # Backward-compatible interpretation of legacy project rows: timestamp is
+        # the hourly bucket start and price_usd is that bucket's close.
+        out["price_available_at"] = out["timestamp"] + pd.Timedelta(hours=1)
     out = out.dropna(subset=["price_usd"])
 
     out = out[out["asset_type"] == market_price_asset].copy()
@@ -171,13 +183,18 @@ def _build_hourly_price_series(
                 f"(expected market series: {PRICE_ASSET_MAP.get(target_asset, target_asset)})"
             )
 
+        price_cols = ["price_usd", "open_price", "price_available_at"]
         hourly_price = (
-            clean_prices.set_index("timestamp")[["price_usd"]]
+            clean_prices.set_index("timestamp")[price_cols]
             .sort_index()
             .resample("1h")
             .last()
-            .ffill()
             .reset_index()
+        )
+        hourly_price["price_usd"] = hourly_price["price_usd"].ffill()
+        hourly_price["open_price"] = hourly_price["open_price"].ffill()
+        hourly_price["price_available_at"] = pd.to_datetime(
+            hourly_price["price_available_at"], utc=True, errors="coerce"
         )
         return hourly_price
 
@@ -192,6 +209,8 @@ def _build_hourly_price_series(
         .ffill()
         .reset_index()
     )
+    hourly_price["open_price"] = pd.NA
+    hourly_price["price_available_at"] = hourly_price["timestamp"] + pd.Timedelta(hours=1)
     return hourly_price
 
 
@@ -259,6 +278,11 @@ def _build_hourly_research_frame(
     research["true_usd_volume"] = research["true_usd_volume"].fillna(0.0)
     research["event_count"] = research["event_count"].fillna(0).astype(int)
     research["target_asset"] = target_asset
+    research["bucket_start"] = pd.to_datetime(research["timestamp"], utc=True, errors="coerce")
+    research["bucket_end"] = research["bucket_start"] + pd.Timedelta(hours=1)
+    research["signal_available_at"] = research["bucket_end"]
+    research["open_price_usd"] = pd.to_numeric(research.get("open_price"), errors="coerce")
+    research["close_price_usd"] = pd.to_numeric(research["price_usd"], errors="coerce")
 
     research = research.dropna(subset=["price_usd"]).reset_index(drop=True)
     return research
@@ -383,4 +407,69 @@ def backtest_whale_strategy(
     out["equity_strategy_net"] = (1.0 + out["net_strategy_return"]).cumprod()
 
     logger.info("Backtest complete for target_asset=%s", out["target_asset"].iloc[0])
+    return out
+
+def backtest_whale_strategy_causal(
+    df: pd.DataFrame,
+    cost_per_trade: float = 0.001,
+) -> pd.DataFrame:
+    """Run the V5 causal backtest using next-bar open execution.
+
+    Semantics
+    ---------
+    - a signal for bucket t is final only at ``signal_available_at``
+    - the position is entered at the next bucket's open price
+    - returns are measured next-open to following-open
+    - every executed position must satisfy entry_time >= source signal availability
+
+    The legacy close-to-close helper remains available as ``backtest_whale_strategy``
+    only for historical methodology reproducibility.
+    """
+    logger.info("Running causal whale strategy backtest with cost_per_trade=%s", cost_per_trade)
+    required = [
+        "timestamp", "target_asset", "signal", "rolling_net_flow",
+        "open_price_usd", "signal_available_at",
+    ]
+    _validate_required_columns(df, required)
+
+    out = df.copy().sort_values("timestamp").reset_index(drop=True)
+    out["timestamp"] = pd.to_datetime(out["timestamp"], utc=True, errors="coerce")
+    out["signal_available_at"] = pd.to_datetime(out["signal_available_at"], utc=True, errors="coerce")
+    out["open_price_usd"] = pd.to_numeric(out["open_price_usd"], errors="coerce")
+    if out["open_price_usd"].isna().any():
+        raise ValueError(
+            "Causal next-open backtest requires non-missing open_price_usd for every research row. "
+            "Refresh/backfill historical_prices with V3 OHLC metadata first."
+        )
+    if out[["timestamp", "signal_available_at"]].isna().any().any():
+        raise ValueError("Causal backtest requires valid timestamp and signal_available_at values")
+
+    # Row t position comes from signal t-1, finalized at the boundary where row t opens.
+    out["position"] = out["signal"].shift(1).fillna(0).astype(int)
+    out["source_signal_available_at"] = out["signal_available_at"].shift(1)
+    out["entry_time"] = out["timestamp"]
+    out["execution_price_usd"] = out["open_price_usd"]
+    out["next_execution_price_usd"] = out["execution_price_usd"].shift(-1)
+    out["asset_return"] = (
+        out["next_execution_price_usd"] / out["execution_price_usd"] - 1.0
+    ).fillna(0.0)
+
+    active = out["position"] != 0
+    causal_ok = (~active) | (
+        out["source_signal_available_at"].notna()
+        & (out["entry_time"] >= out["source_signal_available_at"])
+    )
+    out["causal_execution_ok"] = causal_ok.astype(bool)
+    if not bool(out["causal_execution_ok"].all()):
+        raise ValueError("Causal execution invariant failed: entry precedes signal availability")
+
+    out["trade_flag"] = out["position"].diff().fillna(0).ne(0).astype(int)
+    out["transaction_cost"] = out["trade_flag"] * cost_per_trade
+    out["gross_strategy_return"] = out["position"] * out["asset_return"]
+    out["net_strategy_return"] = out["gross_strategy_return"] - out["transaction_cost"]
+    out["equity_asset"] = (1.0 + out["asset_return"]).cumprod()
+    out["equity_strategy_gross"] = (1.0 + out["gross_strategy_return"]).cumprod()
+    out["equity_strategy_net"] = (1.0 + out["net_strategy_return"]).cumprod()
+    out["methodology_version"] = "v5_causal_next_open"
+    logger.info("Causal backtest complete for target_asset=%s", out["target_asset"].iloc[0])
     return out

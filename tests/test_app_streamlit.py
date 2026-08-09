@@ -25,7 +25,12 @@ def _write_historical_prices(
     conn: sqlite3.Connection,
     rows: list[dict],
 ) -> None:
-    pd.DataFrame(rows).to_sql("historical_prices", conn, if_exists="replace", index=False)
+    df = pd.DataFrame(rows)
+    if "open_price" not in df.columns:
+        df["open_price"] = df["price_usd"]
+    if "price_available_at" not in df.columns:
+        df["price_available_at"] = pd.to_datetime(df["timestamp"], utc=True) + pd.Timedelta(hours=1)
+    df.to_sql("historical_prices", conn, if_exists="replace", index=False)
 
 
 def _write_dex_pool_depths(
