@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This document summarizes the current public outcome-validation result for the Crypto Research Engine.
+This document preserves the frozen V2 public outcome-validation result for the Crypto Research Engine.
 
 The goal is not to prove that whale-flow always works. The goal is to test whether positive ETH whale-flow becomes decision-useful after adjusting the outcome against BTC benchmark movement.
 
