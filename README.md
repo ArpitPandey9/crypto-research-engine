@@ -113,6 +113,23 @@ Start here:
 * [Context-Conditioned Outcome Plan](docs/CONTEXT_CONDITIONED_OUTCOME_PLAN.md)
 * [Context-Conditioned Outcome Research Note V4](docs/CONTEXT_CONDITIONED_OUTCOME_RESEARCH_NOTE_V4.md)
 * [QA / Project Defense Notes](docs/QA.md)
+* [WETH9 Event-Level Verification Case Study](docs/WETH9_EVENT_LEVEL_VERIFICATION.md)
+
+---
+
+## Protocol Verification Case Study — WETH9
+
+A separate fixed-window investigation applies the same evidence-first research discipline at protocol-execution level rather than market-signal level.
+
+For **135** WETH9 calls of at least **1,000 ETH** in the 23 Apr–22 Jul 2026 window:
+
+- **135 / 135** matched a WETH9 `Deposit` event;
+- **135 / 135** matched transaction value to event value in exact wei;
+- **135 / 135** matched transaction sender to Deposit destination;
+- **128** used selector-only calldata and **7** carried trailing bytes;
+- the seven trailing-calldata cases resolved into **3 observed patterns** without semantic or entity over-attribution.
+
+[Read the case study](docs/WETH9_EVENT_LEVEL_VERIFICATION.md) · [Open the Dune dashboard](https://dune.com/arpitpandey/weth9-large-deposits-event-level-verification)
 
 ---
 
@@ -184,6 +201,7 @@ The repository is organized around a tested research pipeline: data ingestion, s
 - `docs/RESULTS.md`
 - `docs/STRESS_TEST_NOTE.md`
 - `docs/whale_flow_mechanism_layer.md`
+- `docs/WETH9_EVENT_LEVEL_VERIFICATION.md`
 
 ### Public sample outputs
 
@@ -258,11 +276,11 @@ The repository is organized around a tested research pipeline: data ingestion, s
 
 It detects large transfers and stores them in a local SQLite database for research.
 
-The goal is not just to download data. The goal is to create a repeatable research vault that can later support stronger protocol-level analytics.
+The goal is not just to download data. The goal is to create a repeatable research data store that can later support stronger protocol-level analytics.
 
 ---
 
-### 2. Local SQLite Vault
+### 2. Local SQLite Data Store
 
 The project uses SQLite as a local research database.
 
@@ -516,7 +534,7 @@ pip install -r requirements.txt
 
 ### 4. Configure environment variables
 
-Create a local `.env` file:
+Copy `.env.example` to a local `.env` file and set the RPC endpoint locally:
 
 ```text
 ETH_RPC_URL=your_ethereum_rpc_url_here
@@ -746,13 +764,13 @@ CI currently validates:
 
 ## Security Practices
 
-This project follows basic security hygiene:
+This repository keeps local credentials and generated research data outside version control:
 
 * `.env` is ignored
 * database files are ignored
 * coverage artifacts are ignored
 * virtual environment is ignored
-* secrets are never committed
+* secrets and credentials are not stored in tracked files
 * RPC URLs are loaded from environment variables
 
 Important rule:
@@ -809,7 +827,7 @@ Future research extensions:
 
 A clear way to explain this project:
 
-> This is a crypto research engine that detects large on-chain transfers, stores them in a local SQLite vault, normalizes token movement into USD volume using market prices, converts that movement into rolling whale-flow signals, validates those signals against benchmark-adjusted future outcomes, stores the validation results in a reusable SQLite research dataset, and presents the results through a tested Streamlit dashboard.
+> This is a crypto research engine that detects large on-chain transfers, stores them in a local SQLite database, normalizes token movement into USD volume using market prices, converts that movement into rolling whale-flow signals, validates those signals against benchmark-adjusted future outcomes, stores the validation results in a reusable SQLite research dataset, and presents the results through a tested Streamlit dashboard.
 
 In simple terms:
 

@@ -90,3 +90,12 @@ Full dashboard/runtime reproduction requires rebuilding or restoring the local S
 Until the database is present, dashboard execution should fail honestly rather than silently inventing or fabricating data.
 
 This is intentional: missing data should be reported as unavailable, not replaced with fake or placeholder research outputs.
+
+
+## External Dune case study
+
+The WETH9 event-level verification case study is documented in `docs/WETH9_EVENT_LEVEL_VERIFICATION.md`.
+
+Its canonical evidence is reproduced from public Dune queries with a fixed 23 Apr 2026 — 22 Jul 2026 research window. Presentation queries are kept separate from canonical verification and pattern-classification queries.
+
+Dune API credentials, local dashboard backups, raw query-export archives, and local audit bundles are intentionally not committed. Reviewers should reproduce the public case study from the canonical query IDs documented in the case-study note rather than from private local exports.

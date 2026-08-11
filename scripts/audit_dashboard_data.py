@@ -141,7 +141,7 @@ def main() -> int:
     latest_flow = float(results["rolling_net_flow"].iloc[-1])
     final_asset = float(results["equity_asset"].iloc[-1])
     final_strategy = float(results["equity_strategy_net"].iloc[-1])
-    alpha = final_strategy - final_asset
+    strategy_minus_buy_hold = final_strategy - final_asset
 
     print(f"Research frame rows: {research_rows}")
     print(f"Total trades: {total_trades}")
@@ -149,7 +149,7 @@ def main() -> int:
     print(f"Latest rolling net flow: ${latest_flow:,.2f}")
     print(f"Buy & hold equity: {final_asset:.4f}x")
     print(f"Strategy net equity: {final_strategy:.4f}x")
-    print(f"Alpha vs buy & hold: {alpha:.4f}x")
+    print(f"Strategy minus buy & hold: {strategy_minus_buy_hold:.4f}x")
 
     signal_counts = (
         results["signal"]

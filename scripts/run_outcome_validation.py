@@ -1,4 +1,4 @@
-"""Run benchmark-adjusted outcome validation from the local SQLite vault.
+"""Run benchmark-adjusted outcome validation from the local SQLite database.
 
 This script loads real enriched whale events and historical prices from SQLite,
 builds the outcome-validation table, prints a concise terminal summary, and can
@@ -63,7 +63,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Run benchmark-adjusted +6h/+24h outcome validation for whale-flow "
-            "signals from the local SQLite vault."
+            "signals from the local SQLite database."
         )
     )
 

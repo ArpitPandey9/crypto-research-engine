@@ -44,11 +44,11 @@ Parameters:
 | Trades | 13 | 13 | 0 |
 | Buy-and-hold equity | 0.787198x | 0.770693x | -0.016505x |
 | Strategy net equity | 1.022424x | 1.005253x | -0.017172x |
-| Alpha vs buy-and-hold | 0.235227x | 0.234560x | -0.000667x |
+| Strategy minus buy-and-hold | 0.235227x | 0.234560x | -0.000667x |
 
 The V5 audit reported zero causal execution invariant failures.
 
-The key interpretation is not that the legacy result was fabricated; it is that its execution convention was less conservative. After imposing explicit next-open execution, the net strategy result is lower while the measured alpha remains close to the legacy estimate.
+The key interpretation is not that the legacy result was fabricated; it is that its execution convention was less conservative. After imposing explicit next-open execution, the net strategy result is lower while the measured strategy-minus-buy-and-hold difference remains close to the legacy estimate.
 
 ## Outcome-validation comparison
 
