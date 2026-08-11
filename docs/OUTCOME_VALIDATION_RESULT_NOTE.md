@@ -19,7 +19,7 @@ Validation design:
 - signal window: 12 hours
 - outcome windows: +6h and +24h
 - benchmark adjustment: abnormal return = actual return - BTC benchmark return
-- local source: SQLite whale-data vault
+- local source: SQLite research database
 
 ---
 

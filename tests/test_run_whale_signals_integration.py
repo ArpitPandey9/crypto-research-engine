@@ -148,7 +148,7 @@ def test_main_prints_research_summary_for_eth(
     assert "WHALE FLOW STRATEGY RESEARCH SUMMARY" in stdout
     assert "Target Asset            : ETH" in stdout
     assert "Strategy Net Equity" in stdout
-    assert "Alpha vs Buy & Hold" in stdout
+    assert "Strategy minus Buy & Hold" in stdout
 
 
 def test_main_prints_research_summary_for_wbtc(

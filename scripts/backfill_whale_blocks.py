@@ -1,7 +1,7 @@
 """Backfill historical Ethereum blocks for whale-transfer research.
 
 This script scans a controlled range of Ethereum blocks and persists real
-whale-transfer observations into the local SQLite vault.
+whale-transfer observations into the local SQLite database.
 
 It does not fabricate events.
 It only stores transfers detected from real block data.
@@ -143,7 +143,7 @@ def main() -> int:
         )
     except ValueError as exc:
         print(f"[!] ERROR: {exc}")
-        client.vault.close()
+        client.repository.close()
         return 1
 
     print("[*] Historical whale-block backfill")
@@ -160,7 +160,7 @@ def main() -> int:
         sleep_seconds=args.sleep_seconds,
     )
 
-    client.vault.close()
+    client.repository.close()
 
     print(f"[*] Backfill complete. Blocks attempted successfully: {scanned_blocks}")
     return 0

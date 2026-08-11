@@ -102,9 +102,9 @@ A controlled execution comparison used the same current data and signal frame wi
 | Trades | 13 | 13 |
 | Buy-and-hold equity | 0.787198x | 0.770693x |
 | Strategy net equity | 1.022424x | 1.005253x |
-| Alpha vs buy-and-hold | 0.235227x | 0.234560x |
+| Strategy minus buy-and-hold | 0.235227x | 0.234560x |
 
-The causal execution correction reduced strategy net equity by `0.017172x` and alpha by `0.000667x`; trade count was unchanged. The corrected path recorded zero causal execution invariant failures.
+The causal execution correction reduced strategy net equity by `0.017172x` and the strategy-minus-buy-and-hold difference by `0.000667x`; trade count was unchanged. The corrected path recorded zero causal execution invariant failures.
 
 The outcome-validation comparison also matched all 11 historical signal buckets after adjusting the legacy bucket-start label to the V5 signal-availability timestamp. Ten cases retained the same overall label. One previously `data_unavailable` case became `worked` after the historical price backfill made the required forward window available.
 

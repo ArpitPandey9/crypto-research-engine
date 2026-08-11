@@ -140,10 +140,10 @@ def compare_backtests(events: pd.DataFrame, prices: pd.DataFrame) -> None:
     causal_bh = _last_float(causal, "equity_asset")
     causal_net = _last_float(causal, "equity_strategy_net")
 
-    legacy_alpha = (
+    legacy_difference = (
         None if legacy_bh is None or legacy_net is None else legacy_net - legacy_bh
     )
-    causal_alpha = (
+    causal_difference = (
         None if causal_bh is None or causal_net is None else causal_net - causal_bh
     )
 
@@ -152,7 +152,7 @@ def compare_backtests(events: pd.DataFrame, prices: pd.DataFrame) -> None:
     print(f"  trades:            {_trade_count(legacy)}")
     print(f"  buy_hold_equity:   {_fmt_x(legacy_bh)}")
     print(f"  strategy_net:      {_fmt_x(legacy_net)}")
-    print(f"  alpha_vs_buy_hold: {_fmt_x(legacy_alpha)}")
+    print(f"  strategy_minus_buy_hold: {_fmt_x(legacy_difference)}")
     print()
 
     print("V5 CAUSAL NEXT-OPEN")
@@ -160,7 +160,7 @@ def compare_backtests(events: pd.DataFrame, prices: pd.DataFrame) -> None:
     print(f"  trades:            {_trade_count(causal)}")
     print(f"  buy_hold_equity:   {_fmt_x(causal_bh)}")
     print(f"  strategy_net:      {_fmt_x(causal_net)}")
-    print(f"  alpha_vs_buy_hold: {_fmt_x(causal_alpha)}")
+    print(f"  strategy_minus_buy_hold: {_fmt_x(causal_difference)}")
 
     if "causal_execution_ok" in causal.columns:
         bad = int((~causal["causal_execution_ok"].astype(bool)).sum())
@@ -173,10 +173,10 @@ def compare_backtests(events: pd.DataFrame, prices: pd.DataFrame) -> None:
     else:
         print("  strategy_net_delta:      unavailable")
 
-    if legacy_alpha is not None and causal_alpha is not None:
-        print(f"  alpha_delta:             {causal_alpha - legacy_alpha:+.6f}x")
+    if legacy_difference is not None and causal_difference is not None:
+        print(f"  difference_delta:             {causal_difference - legacy_difference:+.6f}x")
     else:
-        print("  alpha_delta:             unavailable")
+        print("  difference_delta:             unavailable")
     print(f"  trade_count_delta:       {_trade_count(causal) - _trade_count(legacy):+d}")
     print()
 

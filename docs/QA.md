@@ -212,7 +212,7 @@ The dashboard shows:
 - latest rolling net flow
 - buy-and-hold equity
 - strategy net equity
-- alpha versus buy-and-hold
+- strategy-minus-buy-and-hold equity difference
 - equity curve comparison
 - rolling whale net flow
 - hourly whale USD volume
@@ -323,11 +323,11 @@ I would say:
 
 Then I would add:
 
-> The main learning was not just building charts. The real learning was making market-data availability and execution timing explicit, testing causal invariants, preserving historical methodology for auditability, and improving the project from a learner script into a research-style system.
+> The main learning was not just building charts. The real learning was making market-data availability and execution timing explicit, testing causal invariants, preserving historical methodology for auditability, and improving the project from an initial prototype into a research-style system.
 
 ---
 
-## 19. What makes this stronger than a normal beginner project?
+## 19. What makes this stronger than a typical prototype?
 
 It is stronger because it includes:
 

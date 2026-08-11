@@ -3,7 +3,7 @@
 """
 Module: Whale Strategy Execution Engine (V3)
 Description:
-- Connects to the local SQLite vault
+- Connects to the local SQLite database
 - Loads enriched whale events
 - Loads historical market prices
 - Runs whale-flow signal generation for an explicit target asset
@@ -102,7 +102,7 @@ def main(
     """
     Execute the whale-flow strategy end-to-end for a chosen target asset.
     """
-    print(f"\n[*] Connecting to Whale Vault at: {DB_PATH} ...")
+    print(f"\n[*] Connecting to SQLite database at: {DB_PATH} ...")
 
     try:
         events_df = load_table("SELECT * FROM enriched_whales")
@@ -159,7 +159,7 @@ def main(
     total_trades = int(results_df["trade_flag"].sum())
     final_asset_equity = float(results_df["equity_asset"].iloc[-1])
     final_strategy_equity = float(results_df["equity_strategy_net"].iloc[-1])
-    alpha_vs_buy_hold = final_strategy_equity - final_asset_equity
+    strategy_minus_buy_hold = final_strategy_equity - final_asset_equity
 
     print("\n" + "=" * 52)
     print("        WHALE FLOW STRATEGY RESEARCH SUMMARY")
@@ -169,7 +169,7 @@ def main(
     print(f"Total Trades            : {total_trades}")
     print(f"Buy & Hold Equity       : {final_asset_equity:.4f}x")
     print(f"Strategy Net Equity     : {final_strategy_equity:.4f}x")
-    print(f"Alpha vs Buy & Hold     : {alpha_vs_buy_hold:.4f}x")
+    print(f"Strategy minus Buy & Hold: {strategy_minus_buy_hold:.4f}x")
     print("=" * 52)
 
     print("\n[*] Tail of research results:")

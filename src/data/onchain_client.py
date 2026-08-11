@@ -1,7 +1,7 @@
 # src/data/onchain_client.py
 
 """
-Module: Elite On-Chain Client (V7 - Stable Vault Path + Real Block Time)
+Module: On-Chain Transfer Client (V7 - Stable Database Path + Real Block Time)
 Description:
 - Parses native ETH and selected ERC-20 transfers
 - Stores verified institutional volume in a local SQLite database
@@ -27,9 +27,9 @@ PROJECT_ROOT = CURRENT_DIR.parents[1]
 DB_PATH = PROJECT_ROOT / "data" / "db" / "whale_data.db"
 
 # ==========================================
-# COMPONENT 1: THE DATABASE VAULT
+# COMPONENT 1: SQLITE TRANSFER REPOSITORY
 # ==========================================
-class WhaleVault:
+class WhaleRepository:
     def __init__(self, db_name=DB_PATH):
         """
         Initializes the SQLite connection and creates schema if needed.
@@ -83,9 +83,9 @@ class WhaleVault:
                 (block_timestamp, block_number, asset, amount, sender, receiver, tx_hash),
             )
             self.conn.commit()
-            print("      [VAULT] -> Transaction securely saved to Database.")
+            print("      [DB] Transaction saved.")
         except Exception as e:
-            print(f"      [VAULT ERROR] -> Failed to save: {e}")
+            print(f"      [DB ERROR] Failed to save transaction: {e}")
 
     def close(self):
         """Closes the database connection cleanly."""
@@ -106,7 +106,7 @@ class EVMClient:
         if not self.w3.is_connected():
             raise ConnectionError("CRITICAL ERROR: Failed to connect to Ethereum RPC.")
 
-        self.vault = WhaleVault()
+        self.repository = WhaleRepository()
 
         self.TOKEN_DIRECTORY = {
             "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".lower(): ["USDC", 6],
@@ -155,7 +155,7 @@ class EVMClient:
         """
         Scans one block for large native ETH and selected ERC-20 transfers.
         """
-        print(f"[*] Commencing Deep Whale Scan (Threshold: ${min_usd_value:,.2f})...")
+        print(f"[*] Scanning block for qualifying transfers (threshold: ${min_usd_value:,.2f})...")
 
         whale_count = 0
         block_num = block_data.number
@@ -170,9 +170,9 @@ class EVMClient:
             if eth_value >= 30.0:
                 if self.verify_success(tx["hash"]):
                     whale_count += 1
-                    print(f"\n   🐳 [NATIVE WHALE]: {eth_value:.2f} ETH")
+                    print(f"\n   [NATIVE ETH TRANSFER] {eth_value:.2f} ETH")
 
-                    self.vault.save_whale(
+                    self.repository.save_whale(
                         block_timestamp=block_timestamp,
                         block_number=block_num,
                         asset="ETH",
@@ -199,9 +199,9 @@ class EVMClient:
                         if token_amount >= min_usd_value:
                             if self.verify_success(tx["hash"]):
                                 whale_count += 1
-                                print(f"\n   🐋 [TRUE {token_name} WHALE]: {token_amount:,.2f} {token_name}")
+                                print(f"\n   [ERC20 TRANSFER] {token_amount:,.2f} {token_name}")
 
-                                self.vault.save_whale(
+                                self.repository.save_whale(
                                     block_timestamp=block_timestamp,
                                     block_number=block_num,
                                     asset=token_name,
@@ -211,7 +211,7 @@ class EVMClient:
                                     tx_hash=tx["hash"].hex(),
                                 )
 
-        print(f"\n[*] Scan Complete. True Whales Saved to Vault: {whale_count}")
+        print(f"\n[*] Scan complete. Qualifying transfers saved: {whale_count}")
 
 
 # ==========================================
@@ -224,4 +224,4 @@ if __name__ == "__main__":
     if latest > 0:
         block = client.fetch_block_data(latest)
         client.scan_for_whales(block, min_usd_value=100000.0)
-        client.vault.close()
+        client.repository.close()

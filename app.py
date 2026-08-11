@@ -106,7 +106,7 @@ def format_preview_table(df: pd.DataFrame) -> pd.DataFrame:
 @st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
 def load_table(query: str, db_mtime_ns: int) -> pd.DataFrame:
     """
-    Load a SQL query result into a DataFrame from the local SQLite vault.
+    Load a SQL query result into a DataFrame from the local SQLite database.
 
     db_mtime_ns is included so cache invalidates when the DB file changes.
     """
@@ -381,7 +381,7 @@ research_row_count = int(len(results_df))
 total_trades = int(results_df["trade_flag"].sum())
 final_asset_equity = float(results_df["equity_asset"].iloc[-1])
 final_strategy_equity = float(results_df["equity_strategy_net"].iloc[-1])
-alpha_vs_buy_hold = final_strategy_equity - final_asset_equity
+strategy_minus_buy_hold = final_strategy_equity - final_asset_equity
 latest_signal = int(results_df["signal"].iloc[-1])
 latest_rolling_flow = float(results_df["rolling_net_flow"].iloc[-1])
 
@@ -399,7 +399,7 @@ col5, col6, col7, col8 = st.columns(4)
 col5.metric("Latest rolling net flow", f"${latest_rolling_flow:,.2f}")
 col6.metric("Buy & hold equity", f"{final_asset_equity:.4f}x")
 col7.metric("Strategy net equity", f"{final_strategy_equity:.4f}x")
-col8.metric("Alpha vs buy & hold", f"{alpha_vs_buy_hold:.4f}x")
+col8.metric("Strategy minus buy & hold", f"{strategy_minus_buy_hold:.4f}x")
 
 
 # ==========================================
