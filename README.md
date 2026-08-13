@@ -124,12 +124,12 @@ A separate fixed-window investigation applies the same evidence-first research d
 For **135** WETH9 calls of at least **1,000 ETH** in the 23 Apr–22 Jul 2026 window:
 
 - **135 / 135** matched a WETH9 `Deposit` event;
-- **135 / 135** matched transaction value to event value in exact wei;
+- **135 / 135** matched transaction value to the summed `Deposit`-event value in exact wei;
 - **135 / 135** matched transaction sender to Deposit destination;
 - **128** used selector-only calldata and **7** carried trailing bytes;
 - the seven trailing-calldata cases resolved into **3 observed patterns** without semantic or entity over-attribution.
 
-[Read the case study](docs/WETH9_EVENT_LEVEL_VERIFICATION.md) · [Open the Dune dashboard](https://dune.com/arpitpandey/weth9-large-deposits-event-level-verification)
+[Read the case study](docs/WETH9_EVENT_LEVEL_VERIFICATION.md) · [Open canonical row-level evidence](https://dune.com/queries/8299357) · [Open the Dune dashboard](https://dune.com/arpitpandey/weth9-large-deposits-event-level-verification)
 
 ---
 
@@ -615,7 +615,7 @@ coverage report
 Current local result:
 
 ```text
-193 passed
+214 passed
 91% total coverage
 ```
 
@@ -781,7 +781,7 @@ Important rule:
 
 ## Current Limitations
 
-This is a research prototype, not a production trading system.
+This is a research system, not a production trading system.
 
 Current limitations:
 
