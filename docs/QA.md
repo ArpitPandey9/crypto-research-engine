@@ -299,7 +299,7 @@ The project uses `.gitignore` to protect:
 
 ## 17. What is the current limitation of the project?
 
-The project is still a research prototype.
+The project is a research system, not a production trading system.
 
 Current limitations include:
 
@@ -348,18 +348,16 @@ A beginner dashboard usually only shows charts. This project shows system thinki
 
 ## 20. What is the next high-value upgrade?
 
-The next high-value upgrade is whale-price divergence.
+The highest-value remaining research gap is fresher event-time liquidity and broader protocol-level evidence, not another unvalidated signal feature.
 
-Example:
+Near-term priorities are:
 
-```text
-price rising + whales exiting       → possible distribution risk
-price falling + whales accumulating → possible accumulation signal
-price rising + whales accumulating  → possible trend confirmation
-price falling + whales exiting      → possible danger regime
-```
+- historical event-time liquidity backfill or a transparent liquidity proxy;
+- continued point-in-time and causal validation;
+- deeper smart-contract event and protocol-state analysis;
+- address or destination classification only where evidence supports the label.
 
-This would make the project more decision-maker friendly and more protocol-aware.
+Whale-price divergence can still be tested later, but it is not treated as the current priority.
 
 ---
 
@@ -397,7 +395,7 @@ The current system includes:
 - public V2 results and sample CSV
 - event-time market context V3
 - tested Streamlit dashboard
-- 193 local tests passing with 91% total coverage
+- 214 local tests passing with 91% total coverage
 
 ## 23. What is outcome validation?
 
@@ -543,7 +541,7 @@ But to make stronger liquidity-impact claims, the system needs fresher event-tim
 
 Until then, stale liquidity is reported honestly as a limitation.
 
-## 31. What is Context-Conditioned Outcome Analysis V4?
+## 32. What is Context-Conditioned Outcome Analysis V4?
 
 Context-Conditioned Outcome Analysis V4 summarizes validated whale-flow outcomes by event-time market context.
 
@@ -553,7 +551,7 @@ V3 attached event-time volatility and liquidity context to each validated record
 
 V4 groups those V3 context records by context bucket, volatility regime, and liquidity status, then calculates worked, failed, reversal, and data-unavailable counts.
 
-## 32. What did V4 show?
+## 33. What did V4 show?
 
 The V4 sample contains 9 grouped summary rows generated from 11 V3 event-time context records.
 
@@ -565,7 +563,7 @@ Elevated volatility contains 2 records, and both are reversal outcomes.
 
 Liquidity status is mostly stale, with 10 of 11 records marked as stale. Because of that, the project still avoids strong liquidity-impact claims.
 
-## 33. What does V4 not prove?
+## 34. What does V4 not prove?
 
 V4 does not prove that volatility caused the failures or reversals.
 
@@ -575,12 +573,12 @@ V4 provides an honest context-conditioned reliability summary, not causal proof.
 
 The correct interpretation is that failed and reversal outcomes appear concentrated under certain volatility conditions, while liquidity-impact analysis remains limited until fresher event-time liquidity is available.
 
-## 34. How would I explain V4 in an interview?
+## 35. How would I explain V4 in an interview?
 
 “After building V3 event-time context, I added a V4 context-conditioned outcome summary. It groups validated whale-flow records by context bucket, volatility regime, and liquidity status, then calculates support, failure, reversal, and data-unavailable rates. In the current sample, extreme volatility contains most failed outcomes, elevated volatility contains the reversal outcomes, and liquidity is mostly stale. I do not claim causality from this small sample. The value is that the project now separates signal validation from context-conditioned reliability analysis.”
 ---
 
-## 35. What did the V4 research note conclude?
+## 36. What did the V4 research note conclude?
 
 The V4 research note concluded that positive ETH whale-flow should not be treated as a standalone durable signal.
 
@@ -591,4 +589,70 @@ This means the project can discuss volatility-regime context, but it cannot yet 
 Professional summary:
 
 “V4 moves the project from signal validation to context-conditioned reliability analysis. It keeps failed and reversal outcomes visible, avoids fake liquidity precision, and identifies event-time liquidity as the next major research limitation.”
+
+---
+
+## 37. What changed in causal V5?
+
+V5 makes market-data availability and execution timing explicit. A signal is not treated as tradable before the data needed to construct it is available. The active backtest therefore uses signal availability followed by next-open execution rather than assuming that the same close used to finalize a signal was already executable.
+
+On the same current ETH signal frame, both execution methods produced 13 trades. Strategy net equity changed from `1.022424x` under the legacy close-to-close convention to `1.005253x` under causal next-open execution, with zero causal-invariant failures. The important conclusion is methodological: V5 makes the test more conservative; it does not turn a weak whale-flow sample into strong predictive evidence.
+
+## 38. What does the WETH9 case study establish?
+
+The fixed-window investigation independently selected 135 successful native-ETH calls of at least 1,000 ETH to WETH9 using selector `0xd0e30db0`. The sample contains 56 sender addresses and totals exactly `445941257986580647670085` wei.
+
+For all 135 transactions:
+
+- exactly one matching WETH9 `Deposit` event was observed;
+- the summed Deposit-event value equaled the transaction value in exact wei;
+- the transaction sender matched the Deposit destination.
+
+There were 128 selector-only calls and seven calls with trailing calldata. Those seven grouped into three observed byte patterns with counts `5 / 1 / 1`.
+
+## 39. Why is the function selector not enough to prove a deposit?
+
+A selector identifies the entry point a call is consistent with, but it is not by itself proof that the expected protocol action completed. The WETH9 investigation therefore verifies downstream execution evidence: the Deposit event, the number of Deposit events, the summed event value, and the Deposit destination. That distinction is the core methodological lesson: intended call shape and verified protocol execution are different evidence layers.
+
+## 40. What does `fully_verified` mean in this case study?
+
+The canonical target set already enforces the fixed research scope: successful WETH9 calls, selector `0xd0e30db0`, and the minimum transaction-value threshold. Within that target set, `fully_verified` means the downstream verification controls all pass:
+
+- exactly one matching Deposit event;
+- Deposit-event value sum equals transaction value in exact wei;
+- sender equals Deposit destination.
+
+All 135 canonical rows satisfy those controls.
+
+## 41. What can the trailing calldata establish?
+
+It can establish observable byte shape and repeated execution properties. Five transactions share the exact 10-byte trailing value `0x756e697800000000000c`. One transaction contains a 32-byte trailing word whose numeric value equals that transaction's ETH value. One contains the single byte `0x76`.
+
+It does not establish semantic meaning, wallet software, common entity ownership, relayer or exchange attribution, shared infrastructure, or economic intent. The 32-byte equality is especially important to describe conservatively because WETH9 `deposit()` has no ABI argument. It is an observed property, not proof of an encoded deposit parameter.
+
+## 42. How is the final Dune query lineage structured?
+
+```text
+8299357 canonical row-level evidence
+├── 8077635 verification summary
+└── 8078688 trailing-calldata evidence
+    └── 8078757 pattern summary
+```
+
+Presentation queries `8279596`, `8279907`, `8280175`, and `8287056` consume the derived evidence for dashboard display. The final query chain was freshly executed and passed cross-layer consistency checks. Private API credentials and local audit bundles are not part of the public repository.
+
+## 43. What is the current verified project state?
+
+The current public research system includes:
+
+- causal V5 point-in-time market-data and next-open execution semantics;
+- BTC benchmark-adjusted outcome validation;
+- V3 event-time context and V4 context-conditioned analysis;
+- a WETH9 protocol-verification case study with canonical row-level evidence;
+- a public Dune dashboard and reproducible query lineage;
+- 214 tests passing;
+- 91% total coverage;
+- documented evidence boundaries and limitations.
+
+The project should be presented as research proof-of-work, not as a production trading product or a claim that whale-flow reliably predicts returns.
 

@@ -33,7 +33,7 @@ large native-ETH transaction
 → 0xd0e30db0 selector
 → matching WETH9 Deposit event
 → exactly one Deposit event
-→ transaction value = event value in exact wei
+→ transaction value = summed Deposit-event value in exact wei
 → transaction sender = Deposit destination
 → calldata-shape classification
 ```
@@ -46,12 +46,12 @@ This design prevents a function selector from being treated as sufficient proof 
 |---|---:|
 | Matching `Deposit` event | 135 / 135 |
 | Exactly one `Deposit` event | 135 / 135 |
-| Transaction value = event value, exact wei | 135 / 135 |
+| Transaction value = Deposit-event value sum, exact wei | 135 / 135 |
 | Sender = Deposit destination | 135 / 135 |
 | Selector-only calldata | 128 |
 | Trailing-calldata transactions | 7 |
 
-All 135 target transactions therefore satisfy the event-level, amount-level, and depositor-level controls used in this investigation.
+All 135 target transactions therefore satisfy the event-level, amount-sum, and depositor-level controls used in this investigation and meet the study's `fully_verified` condition.
 
 ## Trailing-calldata investigation
 
@@ -97,13 +97,23 @@ A sender address is an on-chain address, not proof of a unique person or organiz
 
 ## Query lineage
 
-### Canonical evidence queries
+### Canonical evidence and derived-query lineage
 
 | Query | Role |
 |---|---|
-| [8077635 — Verification Summary](https://dune.com/queries/8077635) | Fixed-window totals and verification controls |
-| [8078688 — Trailing-Calldata Review](https://dune.com/queries/8078688) | Transaction-level evidence for all seven exceptions |
-| [8078757 — Pattern Summary](https://dune.com/queries/8078757) | Canonical grouping into three observed patterns |
+| [8299357 — Deposit Verification Row-Level Evidence](https://dune.com/queries/8299357) | Canonical 135-row evidence table: independent fixed-window target selection plus per-transaction Deposit verification |
+| [8077635 — Verification Summary](https://dune.com/queries/8077635) | Derived fixed-window totals and verification controls from query 8299357 |
+| [8078688 — Trailing-Calldata Review](https://dune.com/queries/8078688) | Derived seven-row trailing-calldata evidence from query 8299357 |
+| [8078757 — Pattern Summary](https://dune.com/queries/8078757) | Derived three-pattern summary from query 8078688 |
+
+The hardened dependency chain is:
+
+```text
+8299357 canonical row-level evidence
+├── 8077635 verification summary
+└── 8078688 trailing-calldata evidence
+    └── 8078757 pattern summary
+```
 
 ### Presentation queries
 
@@ -118,13 +128,16 @@ Presentation queries reuse canonical outputs for display. They do not redefine t
 
 ## Reproducibility
 
-Before publication, the three fixed-window canonical queries were freshly re-executed.
+Before final publication packaging, the hardened query chain was freshly re-executed end to end.
 
-- `8077635` reproduced the fixed-window verification totals.
-- `8078757` reproduced the three canonical pattern rows.
-- `8078688` reproduced the same seven transaction identities and substantive evidence fields. The only observed difference versus the frozen local export was serialization of a missing value (`<nil>` versus an empty field), not transaction or evidence drift.
+- `8299357` returned the canonical 135 row-level transactions.
+- `8077635` returned one verification-summary row.
+- `8078688` returned the same seven trailing-calldata transactions.
+- `8078757` returned the three observed pattern rows.
+- presentation queries `8279596`, `8279907`, `8280175`, and `8287056` were also freshly executed against the hardened derived outputs.
+- cross-layer consistency checks passed across canonical evidence, summaries, trailing-calldata lineage, pattern classification, and dashboard presentation.
 
-The public repository does not include Dune API credentials, local dashboard backups, raw audit archives, or private operational files. Reproduction should start from the public canonical Dune queries above and the fixed research scope documented here.
+The frozen row-level evidence matched the fresh canonical execution exactly for the final release audit. The public repository does not include Dune API credentials, private local audit bundles, or operational exports. Reproduction should start with public query `8299357` and follow the dependency chain documented above.
 
 ## Interpretation
 

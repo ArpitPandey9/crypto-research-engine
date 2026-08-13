@@ -96,6 +96,6 @@ This is intentional: missing data should be reported as unavailable, not replace
 
 The WETH9 event-level verification case study is documented in `docs/WETH9_EVENT_LEVEL_VERIFICATION.md`.
 
-Its canonical evidence is reproduced from public Dune queries with a fixed 23 Apr 2026 — 22 Jul 2026 research window. Presentation queries are kept separate from canonical verification and pattern-classification queries.
+Its canonical evidence starts from public Dune query `8299357`, which independently selects the fixed-window target calls and preserves one verification row per transaction. Query `8077635` derives the verification summary, query `8078688` derives the seven trailing-calldata rows, and query `8078757` derives the three observed pattern groups. Presentation queries consume these hardened outputs rather than redefining the underlying evidence.
 
-Dune API credentials, local dashboard backups, raw query-export archives, and local audit bundles are intentionally not committed. Reviewers should reproduce the public case study from the canonical query IDs documented in the case-study note rather than from private local exports.
+The final public query chain was freshly re-executed and cross-layer consistency checks passed before release packaging. Dune API credentials, local dashboard backups, raw query-export archives, and private audit bundles are intentionally not committed. Reviewers should reproduce the case study from the public query lineage rather than from private local exports.
